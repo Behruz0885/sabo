@@ -15,6 +15,39 @@ export async function registerUser(user) {
   }
 }
 
+export async function reportProgress(user, stats) {
+  if (!API || !user?.id) return
+  try {
+    await fetch(`${API}/api/progress`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData, user, stats }),
+    })
+  } catch {
+    /* jim */
+  }
+}
+
+export async function adminBroadcast(key, text) {
+  const res = await fetch(`${API}/api/admin/broadcast`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key },
+    body: JSON.stringify({ text }),
+  })
+  if (!res.ok) throw new Error('Yuborilmadi')
+  return res.json()
+}
+
+export async function adminUserAction(key, id, action) {
+  const res = await fetch(`${API}/api/admin/user`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key },
+    body: JSON.stringify({ id, action }),
+  })
+  if (!res.ok) throw new Error('Amal bajarilmadi')
+  return res.json()
+}
+
 export async function fetchUsers(key) {
   if (!API) throw new Error('API manzili yo‘q')
   const res = await fetch(`${API}/api/admin/users`, { headers: { 'X-Admin-Key': key } })

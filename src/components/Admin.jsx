@@ -1,98 +1,153 @@
-import { useState, useMemo } from 'react'
-import { fetchUsers } from '../lib/users'
-import { SparkLogo, SearchIcon } from './icons'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { fetchUsers, adminBroadcast, adminUserAction } from '../lib/users'
+import { SparkLogo, SearchIcon, CloseIcon } from './icons'
 
 const COUNTRY = {
-  uz: '🇺🇿 O‘zbekiston',
-  ru: '🇷🇺 Rossiya',
-  kk: '🇰🇿 Qozog‘iston',
-  ky: '🇰🇬 Qirg‘iziston',
-  tg: '🇹🇯 Tojikiston',
-  tk: '🇹🇲 Turkmaniston',
-  tr: '🇹🇷 Turkiya',
-  en: '🌍 —',
-  ar: '🇸🇦 —',
+  uz: '🇺🇿 O‘zbekiston', ru: '🇷🇺 Rossiya', kk: '🇰🇿 Qozog‘iston', ky: '🇰🇬 Qirg‘iziston',
+  tg: '🇹🇯 Tojikiston', tk: '🇹🇲 Turkmaniston', tr: '🇹🇷 Turkiya', en: '🌍 —', ar: '🇸🇦 —',
 }
-const AVA_COLORS = ['#f5842a', '#4a90e2', '#a06bff', '#37d67a', '#ff5c8a', '#f0b400']
+const AVA = ['#f5842a', '#4a90e2', '#a06bff', '#37d67a', '#ff5c8a', '#f0b400']
 
 const country = (c) => (!c ? '—' : COUNTRY[c.toLowerCase()] || c.toUpperCase())
-const fmtDate = (ts) =>
-  !ts ? '—' : new Date(ts).toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' })
+const fmtDate = (ts) => (!ts ? '—' : new Date(ts).toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' }))
 const isActive = (ls) => Date.now() - (ls || 0) < 7 * 86400000
-const isToday = (ts) => new Date(ts).toDateString() === new Date().toDateString()
 const initials = (u) => (`${u.first_name || ''} ${u.last_name || ''}`.trim()[0] || '?').toUpperCase()
-const avaColor = (id) => AVA_COLORS[Math.abs(String(id).split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % AVA_COLORS.length]
+const avaColor = (id) => AVA[Math.abs(String(id).split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % AVA.length]
+const fullName = (u) => `${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'
+
+function relTime(ts) {
+  if (!ts) return '—'
+  const s = Math.floor((Date.now() - ts) / 1000)
+  if (s < 60) return 'hozirgina'
+  if (s < 3600) return `${Math.floor(s / 60)} daqiqa oldin`
+  if (s < 86400) return `${Math.floor(s / 3600)} soat oldin`
+  return `${Math.floor(s / 86400)} kun oldin`
+}
+const inPeriod = (ts, p) => {
+  if (p === 'all') return true
+  const d = Date.now() - ts
+  if (p === 'today') return new Date(ts).toDateString() === new Date().toDateString()
+  if (p === 'week') return d < 7 * 86400000
+  if (p === 'month') return d < 30 * 86400000
+  return true
+}
 
 export default function Admin() {
   const [key, setKey] = useState('')
-  const [users, setUsers] = useState(null)
+  const [authed, setAuthed] = useState(false)
+  const [users, setUsers] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [updated, setUpdated] = useState(null)
+
   const [query, setQuery] = useState('')
+  const [statusF, setStatusF] = useState('all')
+  const [periodF, setPeriodF] = useState('all')
+  const [sort, setSort] = useState({ col: 'joined', dir: 'desc' })
 
-  const load = async (e) => {
-    e?.preventDefault?.()
+  const [selected, setSelected] = useState(null)
+  const [bcast, setBcast] = useState(false)
+  const keyRef = useRef('')
+
+  const load = async (silent) => {
+    if (!silent) setLoading(true)
     setError('')
-    setLoading(true)
     try {
-      setUsers(await fetchUsers(key))
+      const list = await fetchUsers(keyRef.current)
+      setUsers(list)
+      setUpdated(Date.now())
+      setAuthed(true)
     } catch (err) {
-      setError(err.message)
+      if (!silent) setError(err.message)
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
-  const logout = () => {
-    setUsers(null)
-    setKey('')
-    setQuery('')
+  const login = async (e) => {
+    e?.preventDefault?.()
+    keyRef.current = key
+    await load(false)
   }
 
-  const stats = useMemo(() => {
-    if (!users) return null
-    return {
-      total: users.length,
-      active: users.filter((u) => isActive(u.lastSeen)).length,
-      today: users.filter((u) => isToday(u.joined)).length,
-      countries: new Set(users.map((u) => u.language_code).filter(Boolean)).size,
+  // Avtomatik yangilanish (5s)
+  useEffect(() => {
+    if (!authed) return
+    const t = setInterval(() => load(true), 5000)
+    return () => clearInterval(t)
+  }, [authed])
+
+  const stats = useMemo(() => ({
+    total: users.length,
+    active: users.filter((u) => isActive(u.lastSeen)).length,
+    today: users.filter((u) => new Date(u.joined).toDateString() === new Date().toDateString()).length,
+    countries: new Set(users.map((u) => u.language_code).filter(Boolean)).size,
+  }), [users])
+
+  const growth = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const out = []
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i)
+      const n = new Date(d); n.setDate(d.getDate() + 1)
+      out.push({ d, count: users.filter((u) => u.joined >= d.getTime() && u.joined < n.getTime()).length })
     }
+    return out
   }, [users])
 
-  const filtered = useMemo(() => {
-    if (!users) return []
-    const q = query.trim().toLowerCase()
-    if (!q) return users
-    return users.filter((u) =>
-      `${u.first_name} ${u.last_name} ${u.username} ${u.id}`.toLowerCase().includes(q)
-    )
-  }, [users, query])
+  const rows = useMemo(() => {
+    let r = users.filter((u) => {
+      if (statusF === 'active' && !isActive(u.lastSeen)) return false
+      if (statusF === 'inactive' && isActive(u.lastSeen)) return false
+      if (statusF === 'blocked' && !u.blocked) return false
+      if (!inPeriod(u.joined, periodF)) return false
+      const q = query.trim().toLowerCase()
+      if (q && !`${u.first_name} ${u.last_name} ${u.username} ${u.id}`.toLowerCase().includes(q)) return false
+      return true
+    })
+    const { col, dir } = sort
+    const s = dir === 'asc' ? 1 : -1
+    r = [...r].sort((a, b) => {
+      let av, bv
+      if (col === 'name') { av = fullName(a).toLowerCase(); bv = fullName(b).toLowerCase() }
+      else { av = a[col] ?? 0; bv = b[col] ?? 0 }
+      return av < bv ? -s : av > bv ? s : 0
+    })
+    return r
+  }, [users, query, statusF, periodF, sort])
+
+  const toggleSort = (col) =>
+    setSort((s) => ({ col, dir: s.col === col && s.dir === 'desc' ? 'asc' : 'desc' }))
+  const arrow = (col) => (sort.col === col ? (sort.dir === 'desc' ? ' ↓' : ' ↑') : '')
+
+  const doAction = async (id, action) => {
+    if (action === 'delete' && !confirm('Foydalanuvchi o‘chirilsinmi?')) return
+    try {
+      await adminUserAction(keyRef.current, id, action)
+      setSelected(null)
+      load(true)
+    } catch (e) {
+      alert(e.message)
+    }
+  }
 
   /* ---- Login ---- */
-  if (users === null) {
+  if (!authed) {
     return (
       <div className="admin-login">
-        <form className="admin-login__box" onSubmit={load}>
+        <form className="admin-login__box" onSubmit={login}>
           <span className="admin-login__logo"><SparkLogo /></span>
           <h1>Sabo Admin</h1>
           <p>Boshqaruv paneliga kirish</p>
-          <input
-            type="password"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="Admin parol"
-            autoFocus
-          />
+          <input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="Admin parol" autoFocus />
           {error && <span className="admin-login__err">{error}</span>}
-          <button type="submit" disabled={loading || !key}>
-            {loading ? 'Tekshirilmoqda...' : 'Kirish'}
-          </button>
+          <button type="submit" disabled={loading || !key}>{loading ? 'Tekshirilmoqda...' : 'Kirish'}</button>
         </form>
       </div>
     )
   }
 
-  /* ---- Dashboard ---- */
+  const maxG = Math.max(1, ...growth.map((g) => g.count))
   const cards = [
     { label: 'Jami foydalanuvchi', value: stats.total, color: '#f5842a' },
     { label: 'Faol (7 kun)', value: stats.active, color: '#37d67a' },
@@ -108,8 +163,9 @@ export default function Admin() {
           <b>Sabo Admin</b>
         </div>
         <div className="admin__bar-actions">
-          <button className="admin__btn" onClick={load}>↻ Yangilash</button>
-          <button className="admin__btn admin__btn--ghost" onClick={logout}>Chiqish</button>
+          <span className="admin__updated">Yangilangan: {updated ? new Date(updated).toLocaleTimeString('uz-UZ') : '—'}</span>
+          <button className="admin__btn" onClick={() => setBcast(true)}>📣 Ommaviy xabar</button>
+          <button className="admin__btn admin__btn--ghost" onClick={() => setAuthed(false)}>Chiqish</button>
         </div>
       </header>
 
@@ -123,13 +179,39 @@ export default function Admin() {
         ))}
       </div>
 
-      <div className="admin__search">
-        <SearchIcon />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ism, username yoki ID bo‘yicha qidirish..."
-        />
+      {/* O'sish grafigi */}
+      <div className="agraph">
+        <div className="agraph__head"><b>O‘sish (so‘nggi 14 kun)</b></div>
+        <div className="agraph__bars">
+          {growth.map((g, i) => (
+            <div className="agraph__col" key={i} title={`${g.d.toLocaleDateString('uz-UZ')}: ${g.count}`}>
+              <div className="agraph__bar" style={{ height: `${(g.count / maxG) * 100}%` }}>
+                {g.count > 0 && <span>{g.count}</span>}
+              </div>
+              <small>{g.d.getDate()}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filtrlar */}
+      <div className="admin__filters">
+        <div className="admin__search">
+          <SearchIcon />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ism, username yoki ID..." />
+        </div>
+        <select value={statusF} onChange={(e) => setStatusF(e.target.value)}>
+          <option value="all">Barcha holat</option>
+          <option value="active">Faol</option>
+          <option value="inactive">Nofaol</option>
+          <option value="blocked">Bloklangan</option>
+        </select>
+        <select value={periodF} onChange={(e) => setPeriodF(e.target.value)}>
+          <option value="all">Barcha davr</option>
+          <option value="today">Bugun</option>
+          <option value="week">Bu hafta</option>
+          <option value="month">Bu oy</option>
+        </select>
       </div>
 
       <div className="admin__table-wrap">
@@ -137,40 +219,124 @@ export default function Admin() {
           <thead>
             <tr>
               <th>#</th>
-              <th>Foydalanuvchi</th>
+              <th className="sortable" onClick={() => toggleSort('name')}>Foydalanuvchi{arrow('name')}</th>
               <th>Username</th>
               <th>Telegram ID</th>
               <th>Davlat</th>
-              <th>Qo‘shilgan</th>
+              <th className="sortable" onClick={() => toggleSort('xp')}>XP{arrow('xp')}</th>
+              <th className="sortable" onClick={() => toggleSort('streak')}>Streak{arrow('streak')}</th>
+              <th className="sortable" onClick={() => toggleSort('joined')}>Qo‘shilgan{arrow('joined')}</th>
               <th>Holat</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan="7" className="admin__empty">Foydalanuvchi topilmadi</td></tr>
-            )}
-            {filtered.map((u, i) => (
-              <tr key={u.id}>
+            {rows.length === 0 && <tr><td colSpan="9" className="admin__empty">Foydalanuvchi topilmadi</td></tr>}
+            {rows.map((u, i) => (
+              <tr key={u.id} onClick={() => setSelected(u)} className="admin__row">
                 <td className="admin__muted">{i + 1}</td>
                 <td>
                   <div className="admin__user">
                     <span className="admin__ava" style={{ background: avaColor(u.id) }}>{initials(u)}</span>
-                    <span>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</span>
+                    <span>{fullName(u)}</span>
                   </div>
                 </td>
                 <td>{u.username ? `@${u.username}` : '—'}</td>
                 <td className="admin__mono">{u.id}</td>
                 <td>{country(u.language_code)}</td>
+                <td>{u.xp || 0}</td>
+                <td>🔥 {u.streak || 0}</td>
                 <td className="admin__muted">{fmtDate(u.joined)}</td>
                 <td>
-                  <span className={`badge badge--${isActive(u.lastSeen) ? 'active' : 'inactive'}`}>
-                    {isActive(u.lastSeen) ? 'Faol' : 'Nofaol'}
-                  </span>
+                  {u.blocked
+                    ? <span className="badge badge--blocked">Bloklangan</span>
+                    : <span className={`badge badge--${isActive(u.lastSeen) ? 'active' : 'inactive'}`}>{isActive(u.lastSeen) ? 'Faol' : 'Nofaol'}</span>}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {selected && <DetailModal u={selected} onClose={() => setSelected(null)} onAction={doAction} />}
+      {bcast && <BroadcastModal keyVal={keyRef.current} onClose={() => setBcast(false)} />}
+    </div>
+  )
+}
+
+/* ---- Foydalanuvchi tafsiloti ---- */
+function DetailModal({ u, onClose, onAction }) {
+  const rows = [
+    ['Telegram ID', u.id],
+    ['Username', u.username ? `@${u.username}` : '—'],
+    ['Til', u.language_code || '—'],
+    ['Davlat', country(u.language_code)],
+    ['XP', u.xp || 0],
+    ['Streak', `🔥 ${u.streak || 0}`],
+    ['Tugatilgan darslar', u.progress || 0],
+    ['Qo‘shilgan', fmtDate(u.joined)],
+    ['Oxirgi faollik', relTime(u.lastSeen)],
+    ['Holat', u.blocked ? 'Bloklangan' : isActive(u.lastSeen) ? 'Faol' : 'Nofaol'],
+  ]
+  return (
+    <div className="modal" onClick={onClose}>
+      <div className="modal__box" onClick={(e) => e.stopPropagation()}>
+        <button className="modal__close" onClick={onClose}><CloseIcon /></button>
+        <div className="modal__head">
+          <span className="admin__ava admin__ava--lg" style={{ background: avaColor(u.id) }}>{initials(u)}</span>
+          <div>
+            <b>{fullName(u)}</b>
+            <small>{u.username ? `@${u.username}` : u.id}</small>
+          </div>
+        </div>
+        <div className="modal__rows">
+          {rows.map(([k, v]) => (
+            <div className="modal__row" key={k}><span>{k}</span><b>{v}</b></div>
+          ))}
+        </div>
+        <div className="modal__actions">
+          {u.blocked
+            ? <button className="mbtn mbtn--ok" onClick={() => onAction(u.id, 'unblock')}>Blokdan chiqarish</button>
+            : <button className="mbtn mbtn--warn" onClick={() => onAction(u.id, 'block')}>Bloklash</button>}
+          <button className="mbtn mbtn--danger" onClick={() => onAction(u.id, 'delete')}>O‘chirish</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---- Ommaviy xabar ---- */
+function BroadcastModal({ keyVal, onClose }) {
+  const [text, setText] = useState('')
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState(null)
+
+  const send = async () => {
+    if (!text.trim()) return
+    setSending(true)
+    try {
+      setResult(await adminBroadcast(keyVal, text))
+    } catch (e) {
+      setResult({ error: e.message })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="modal" onClick={onClose}>
+      <div className="modal__box" onClick={(e) => e.stopPropagation()}>
+        <button className="modal__close" onClick={onClose}><CloseIcon /></button>
+        <h2 className="modal__title">📣 Ommaviy xabar</h2>
+        <p className="modal__hint">Barcha faol foydalanuvchilarga bot orqali yuboriladi. HTML teglar (&lt;b&gt;, &lt;i&gt;) qo‘llab-quvvatlanadi.</p>
+        <textarea className="modal__textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="Xabar matni..." rows={5} />
+        {result && (
+          result.error
+            ? <div className="modal__result err">Xato: {result.error}</div>
+            : <div className="modal__result ok">✅ Yuborildi: {result.sent} / {result.total} (xato: {result.failed})</div>
+        )}
+        <button className="btn-primary" onClick={send} disabled={sending || !text.trim()}>
+          {sending ? 'Yuborilmoqda...' : 'Yuborish'}
+        </button>
       </div>
     </div>
   )

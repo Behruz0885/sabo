@@ -37,9 +37,53 @@ export function upsertUser(u) {
     language_code: u.language_code || prev.language_code || '',
     joined: prev.joined || now,
     lastSeen: now,
+    xp: prev.xp || 0,
+    streak: prev.streak || 0,
+    progress: prev.progress || 0,
+    blocked: prev.blocked || false,
   }
   persist(data)
   scheduleBackup(Object.values(data)) // Telegram kanalga zaxira
+}
+
+// Ilova progressini yangilash (XP, streak, tugatilgan darslar)
+export function updateProgress(u, stats = {}) {
+  if (!u?.id) return
+  const data = load()
+  const key = String(u.id)
+  const prev = data[key]
+  if (!prev) {
+    upsertUser(u)
+    return updateProgress(u, stats)
+  }
+  data[key] = {
+    ...prev,
+    first_name: u.first_name || prev.first_name,
+    username: u.username || prev.username,
+    language_code: u.language_code || prev.language_code,
+    xp: stats.xp ?? prev.xp ?? 0,
+    streak: stats.streak ?? prev.streak ?? 0,
+    progress: stats.progress ?? prev.progress ?? 0,
+    lastSeen: Date.now(),
+  }
+  persist(data)
+  scheduleBackup(Object.values(data))
+}
+
+export function setBlocked(id, blocked) {
+  const data = load()
+  const key = String(id)
+  if (!data[key]) return
+  data[key].blocked = Boolean(blocked)
+  persist(data)
+  scheduleBackup(Object.values(data))
+}
+
+export function removeUser(id) {
+  const data = load()
+  delete data[String(id)]
+  persist(data)
+  scheduleBackup(Object.values(data))
 }
 
 export function listUsers() {

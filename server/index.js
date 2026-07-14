@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import crypto from 'crypto'
 import { chat, hasKey } from './llm.js'
-import { upsertUser, listUsers, initUsers } from './users.js'
+import { upsertUser, updateProgress, setBlocked, removeUser, listUsers, initUsers } from './users.js'
 
 const app = express()
 app.use(express.json({ limit: '256kb' }))
@@ -63,14 +63,68 @@ app.post('/api/register', (req, res) => {
   res.json({ ok: true })
 })
 
-/* ---- Admin: foydalanuvchilar ro'yxati ---- */
+/* ---- Ilova progressini yuborish ---- */
+app.post('/api/progress', (req, res) => {
+  const user = parseUser(req.body?.initData) || req.body?.user
+  if (!user?.id) return res.json({ ok: false })
+  updateProgress(user, req.body?.stats || {})
+  res.json({ ok: true })
+})
+
+/* ---- Admin autentifikatsiya ---- */
 const ADMIN_KEY = process.env.ADMIN_KEY || ''
-app.get('/api/admin/users', (req, res) => {
+function adminAuth(req, res, next) {
   const key = req.get('X-Admin-Key') || req.query.key
   if (!ADMIN_KEY || key !== ADMIN_KEY) {
     return res.status(401).json({ error: 'Ruxsat yo‘q' })
   }
+  next()
+}
+
+/* ---- Admin: foydalanuvchilar ro'yxati ---- */
+app.get('/api/admin/users', adminAuth, (_req, res) => {
   res.json({ users: listUsers() })
+})
+
+/* ---- Admin: foydalanuvchini boshqarish (block/unblock/delete) ---- */
+app.post('/api/admin/user', adminAuth, (req, res) => {
+  const { id, action } = req.body || {}
+  if (!id || !action) return res.status(400).json({ error: 'id va action kerak' })
+  if (action === 'block') setBlocked(id, true)
+  else if (action === 'unblock') setBlocked(id, false)
+  else if (action === 'delete') removeUser(id)
+  else return res.status(400).json({ error: 'noma’lum action' })
+  res.json({ ok: true })
+})
+
+/* ---- Admin: ommaviy xabar (broadcast) ---- */
+async function tgSend(chatId, text) {
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+  })
+  return res.json()
+}
+
+app.post('/api/admin/broadcast', adminAuth, async (req, res) => {
+  const text = (req.body?.text || '').trim()
+  if (!text) return res.status(400).json({ error: 'Matn bo‘sh' })
+  if (!BOT_TOKEN) return res.status(500).json({ error: 'BOT_TOKEN yo‘q' })
+
+  const targets = listUsers().filter((u) => !u.blocked)
+  let sent = 0
+  let failed = 0
+  for (const u of targets) {
+    try {
+      const r = await tgSend(u.id, text)
+      r.ok ? sent++ : failed++
+    } catch {
+      failed++
+    }
+    await new Promise((r) => setTimeout(r, 45)) // Telegram rate-limit
+  }
+  res.json({ ok: true, sent, failed, total: targets.length })
 })
 
 /* ---- Rol-o'yin javobi ---- */

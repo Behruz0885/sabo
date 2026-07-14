@@ -4,7 +4,7 @@ import Landing from './components/Landing'
 import Onboarding from './components/onboarding/Onboarding'
 import MainApp from './components/app/MainApp'
 import { loadState, saveState, DEFAULT_STATE, computeStreak } from './lib/storage'
-import { registerUser, isAdminRoute } from './lib/users'
+import { registerUser, reportProgress, isAdminRoute } from './lib/users'
 import Admin from './components/Admin'
 import './App.css'
 
@@ -19,6 +19,13 @@ export default function App() {
   useEffect(() => {
     if (telegram?.user) registerUser(telegram.user)
   }, [telegram?.user])
+
+  // Progressni backendga sinxronlaymiz (admin panelda ko'rinishi uchun)
+  useEffect(() => {
+    if (loaded.current && telegram?.user && state.onboarded) {
+      reportProgress(telegram.user, { xp: state.xp, streak: state.streak, progress: state.progress })
+    }
+  }, [state.xp, state.streak, state.progress, state.onboarded, telegram?.user])
 
   // Boshlanishida saqlangan holatni yuklaymiz
   useEffect(() => {
