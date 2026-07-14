@@ -16,6 +16,10 @@
   --purple: #a06bff;
   --yellow: #f0b400;
 
+  /* Xavfsiz zona (Telegram fullscreen insets JS orqali yangilanadi) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
   font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;

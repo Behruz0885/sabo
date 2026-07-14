@@ -27,6 +27,25 @@ export function useTelegram() {
       /* eski versiyalarda mavjud emas */
     }
 
+    // Xavfsiz zona: Telegram fullscreen'da Close/menu tugmalari kontentni tosib qo'ymasligi uchun
+    const applyInsets = () => {
+      const sa = webApp.safeAreaInset || {}
+      const csa = webApp.contentSafeAreaInset || {}
+      const top = (sa.top || 0) + (csa.top || 0)
+      const bottom = (sa.bottom || 0) + (csa.bottom || 0)
+      const root = document.documentElement.style
+      root.setProperty('--safe-top', `${Math.max(top, 0)}px`)
+      root.setProperty('--safe-bottom', `${Math.max(bottom, 0)}px`)
+    }
+    applyInsets()
+    try {
+      webApp.onEvent?.('safeAreaChanged', applyInsets)
+      webApp.onEvent?.('contentSafeAreaChanged', applyInsets)
+      webApp.onEvent?.('fullscreenChanged', applyInsets)
+    } catch {
+      /* mavjud emas */
+    }
+
     setTg(webApp)
     setUser(webApp.initDataUnsafe?.user ?? null)
   }, [])
