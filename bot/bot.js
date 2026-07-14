@@ -1,5 +1,6 @@
 import 'dotenv/config'
-import { Bot, InlineKeyboard, GrammyError, HttpError } from 'grammy'
+import http from 'http'
+import { Bot, InlineKeyboard, GrammyError, HttpError, webhookCallback } from 'grammy'
 import cron from 'node-cron'
 import { addUser, allUserIds } from './store.js'
 
@@ -7,6 +8,10 @@ const token = process.env.BOT_TOKEN
 const webAppUrl = process.env.WEBAPP_URL
 const reminderHour = Number(process.env.REMINDER_HOUR ?? 20)
 const timezone = process.env.TZ || 'Asia/Tashkent'
+
+// Render/hosting web-servisi bo'lsa — webhook; lokalda — long polling
+const PORT = process.env.PORT || 3000
+const publicUrl = process.env.WEBHOOK_URL || process.env.RENDER_EXTERNAL_URL || ''
 
 if (!token) {
   console.error('❌ BOT_TOKEN topilmadi. .env faylini to‘ldiring (.env.example dan nusxa oling).')
@@ -107,6 +112,36 @@ bot.catch((err) => {
   else console.error('Noma’lum xato:', e)
 })
 
-bot.start({
-  onStart: (info) => console.log(`✅ @${info.username} ishga tushdi`),
-})
+/* ---- Ishga tushirish: webhook yoki polling ---- */
+if (publicUrl) {
+  // Webhook rejimi (Render Web Service uchun)
+  const secretPath = `/tg/${token.split(':')[0]}`
+  const handleUpdate = webhookCallback(bot, 'http')
+
+  const server = http.createServer(async (req, res) => {
+    if (req.method === 'POST' && req.url === secretPath) {
+      try {
+        await handleUpdate(req, res)
+      } catch (e) {
+        console.error('webhook xatosi:', e)
+        if (!res.headersSent) { res.writeHead(500); res.end() }
+      }
+      return
+    }
+    // Salomatlik / ping (Render uyg'oq tutish uchun)
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('Sabo bot ishlayapti')
+  })
+
+  server.listen(PORT, async () => {
+    const url = `${publicUrl.replace(/\/$/, '')}${secretPath}`
+    await bot.api.setWebhook(url, { drop_pending_updates: true })
+    console.log(`✅ Webhook o‘rnatildi: ${url}`)
+    console.log(`✅ Server ${PORT}-portda`)
+  })
+} else {
+  // Long polling (lokal ishlab chiqish)
+  bot.start({
+    onStart: (info) => console.log(`✅ @${info.username} polling rejimida ishga tushdi`),
+  })
+}
