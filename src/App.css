@@ -1930,3 +1930,15 @@
 .aibadge--on i { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .aibadge--off { color: #ff6b6b; }
 .aibadge--off i { background: #ff6b6b; }
+
+/* ==== Admin: AI provayder badge ==== */
+.admin__ai {
+  align-self: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+.admin__ai.on { background: rgba(55, 214, 122, 0.15); color: var(--green); }
+.admin__ai.off { background: rgba(255, 92, 92, 0.15); color: #ff6b6b; }

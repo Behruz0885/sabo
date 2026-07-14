@@ -25,8 +25,8 @@ export default function Landing({ telegram, onStart }) {
           <span className="welcome__accent">o‘ziga ishonch</span>
         </h1>
         <p className="welcome__sub">
-          Kuniga atigi 5 daqiqa mashq qil. Ijtimoiy ko‘nikmalaringni
-          o‘yin tarzida rivojlantir.
+          Kuniga atigi 5 daqiqa mashq qiling. Ijtimoiy ko‘nikmalaringizni
+          o‘yin tarzida rivojlantiring.
         </p>
 
         <div className="welcome__cards">

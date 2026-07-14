@@ -376,10 +376,10 @@ function ScoreStep({ answers }) {
             </div>
           ))}
         </div>
-        <h2 className="score__title">Sen — Yangi Ovozsan</h2>
+        <h2 className="score__title">Siz — Yangi Ovozsiz</h2>
         <p className="score__desc">
-          Ijtimoiy ishonching hali shakllanmoqda. To‘g‘ri mashq seni xotirjamroq,
-          aniqroq va o‘z o‘rningni egallashda qulayroq his qildiradi.
+          Ijtimoiy ishonchingiz hali shakllanmoqda. To‘g‘ri mashq sizni xotirjamroq,
+          aniqroq va o‘z o‘rningizni egallashda qulayroq his qildiradi.
         </p>
       </div>
     </div>
@@ -403,14 +403,14 @@ function CommitStep({ answers, next }) {
   return (
     <div className="commit">
       <div className="commit__letter">
-        <h1>Salom! Bu men</h1>
+        <h1>Salom! Bu — men</h1>
         <div className="commit__from">
           <span className="commit__avatar"><SparkLogo /></span>
           <b>Kelajakdagi {name}</b>
         </div>
-        <p>Bu — bir yildan kelayotgan sen. Bugun o‘zingni tortmaslikka qaror qilding va bu hammasini o‘zgartirdi!</p>
-        <p>Endi xonalarga xotirjamroq kirasan, fikrlaringga ishonasan va to‘g‘ri so‘zlarni topasan — chunki Saboga sodiq qolding.</p>
-        <p>Kuniga 5 daqiqa ber. Ishonaman, arziydi.</p>
+        <p>Bu — bir yildan kelayotgan o‘zingiz. Bugun o‘zingizni tortmaslikka qaror qildingiz va bu hammasini o‘zgartirdi!</p>
+        <p>Endi xonalarga xotirjamroq kirasiz, fikrlaringizga ishonasiz va to‘g‘ri so‘zlarni topasiz — chunki Saboga sodiq qoldingiz.</p>
+        <p>Kuniga bir necha daqiqa ajrating. Ishoning, arziydi.</p>
         <div className="commit__sign">Ko‘rishguncha,<br /><b>Kelajakdagi {name}</b></div>
       </div>
       <button

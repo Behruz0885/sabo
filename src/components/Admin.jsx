@@ -179,6 +179,11 @@ export default function Admin() {
           )}
         </div>
         <div className="admin__bar-actions">
+          {health && (
+            <span className={`admin__ai ${health.llm ? 'on' : 'off'}`}>
+              AI: {health.llm ? health.provider : 'ulanmagan'}
+            </span>
+          )}
           <span className="admin__updated">Yangilangan: {updated ? new Date(updated).toLocaleTimeString('uz-UZ') : '—'}</span>
           <button className="admin__btn" onClick={() => setBcast(true)}>📣 Ommaviy xabar</button>
           <button className="admin__btn admin__btn--ghost" onClick={() => setAuthed(false)}>Chiqish</button>
