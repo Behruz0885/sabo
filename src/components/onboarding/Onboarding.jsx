@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { STEPS, LIKERT } from '../../data/onboarding'
+import { STEPS } from '../../data/onboarding'
 import { BackIcon, CheckMark, SparkLogo, RunIcon, BookIcon } from '../icons'
+import OptIcon from './OptIcon'
 
 export default function Onboarding({ telegram, onFinish, onExit }) {
   const { haptic, user } = telegram
@@ -91,8 +92,6 @@ function StepView({ step, value, answers, setAnswer, next }) {
       return <MultiStep step={step} value={value} setAnswer={setAnswer} />
     case 'grid':
       return <GridStep step={step} value={value} setAnswer={setAnswer} />
-    case 'likert':
-      return <LikertStep step={step} value={value} setAnswer={setAnswer} />
     case 'slider':
       return <SliderStep step={step} value={value} setAnswer={setAnswer} />
     case 'info':
@@ -149,7 +148,7 @@ function SingleStep({ step, value, setAnswer }) {
             className={`opt ${value === o.label ? 'opt--on' : ''}`}
             onClick={() => setAnswer(step.key, o.label)}
           >
-            <span className="opt__icon">{o.icon}</span>
+            <span className="opt__icon" style={{ color: o.color }}><OptIcon name={o.icon} /></span>
             <span className="opt__label">{o.label}</span>
           </button>
         ))}
@@ -180,7 +179,7 @@ function MultiStep({ step, value = [], setAnswer }) {
           const on = value.includes(o.label)
           return (
             <button key={o.label} className={`opt ${on ? 'opt--on' : ''}`} onClick={() => toggle(o.label)}>
-              <span className="opt__icon">{o.icon}</span>
+              <span className="opt__icon" style={{ color: o.color }}><OptIcon name={o.icon} /></span>
               <span className="opt__label">{o.label}</span>
               <span className={`radio ${on ? 'radio--on' : ''}`}>{on && <CheckMark />}</span>
             </button>
@@ -205,32 +204,12 @@ function GridStep({ step, value = [], setAnswer }) {
           const on = value.includes(o.label)
           return (
             <button key={o.label} className={`gcard ${on ? 'gcard--on' : ''}`} onClick={() => toggle(o.label)}>
-              <span className="gcard__icon">{o.icon}</span>
+              <span className="gcard__icon" style={{ color: o.color }}><OptIcon name={o.icon} /></span>
               <span className={`radio radio--tr ${on ? 'radio--on' : ''}`}>{on && <CheckMark />}</span>
               <span className="gcard__label">{o.label}</span>
             </button>
           )
         })}
-      </div>
-    </>
-  )
-}
-
-function LikertStep({ step, value, setAnswer }) {
-  return (
-    <>
-      <Heading step={step} />
-      <div className="opts">
-        {LIKERT.map((o, i) => (
-          <button
-            key={o.label}
-            className={`opt ${value === i ? 'opt--on' : ''}`}
-            onClick={() => setAnswer(step.key, i)}
-          >
-            <span className="opt__emoji" style={{ background: o.color }}>{o.emoji}</span>
-            <span className="opt__label">{o.label}</span>
-          </button>
-        ))}
       </div>
     </>
   )
@@ -279,8 +258,8 @@ function InfoStep({ step }) {
       <ul className="info__list">
         {step.bullets.map((b, i) => (
           <li key={i} style={{ animationDelay: `${i * 0.15}s` }}>
-            <span className="info__bicon">{b.icon}</span>
-            <span dangerouslySetInnerHTML={{ __html: b.text }} />
+            <span className="info__bicon" style={{ color: b.color }}><OptIcon name={b.icon} /></span>
+            <span>{b.text}</span>
           </li>
         ))}
       </ul>
@@ -300,7 +279,7 @@ function SuperStep({ step, value, setAnswer }) {
             className={`super ${value === o.title ? 'super--on' : ''}`}
             onClick={() => setAnswer(step.key, o.title)}
           >
-            <span className="super__icon">{o.icon}</span>
+            <span className="super__icon" style={{ color: o.color }}><OptIcon name={o.icon} /></span>
             <span className="super__text">
               <b>{o.title}</b>
               <small>{o.desc}</small>
@@ -441,7 +420,7 @@ function CommitStep({ answers, next }) {
         onPointerLeave={cancel}
       >
         <span className="commit__ring" />
-        👆
+        <span className="commit__fp"><OptIcon name="fingerprint" /></span>
         <em>Sodiqlikni tasdiqlash uchun bosib turing</em>
       </button>
     </div>
