@@ -1,0 +1,58 @@
+:root {
+  --bg-top: #2a1d15;
+  --bg-bottom: #140f0c;
+  --card: #2b221c;
+  --card-2: #34291f;
+  --border: #453529;
+  --orange: #f5842a;
+  --orange-2: #ff9e52;
+  --orange-dark: #d76a12;
+  --text: #f7f1ea;
+  --muted: #9a8e84;
+  --muted-2: #6f655c;
+  --green: #37d67a;
+  --blue: #4a90e2;
+  --pink: #ff5c8a;
+  --purple: #a06bff;
+  --yellow: #f0b400;
+
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: #0c0908;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
