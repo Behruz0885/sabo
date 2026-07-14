@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import crypto from 'crypto'
 import { chat, hasKey } from './llm.js'
+import { upsertUser, listUsers } from './users.js'
 
 const app = express()
 app.use(express.json({ limit: '256kb' }))
@@ -42,6 +43,35 @@ function guard(req, res, next) {
 
 /* ---- Salomatlik ---- */
 app.get('/health', (_req, res) => res.json({ ok: true, llm: hasKey() }))
+
+/* ---- initData'dan foydalanuvchini ajratish ---- */
+function parseUser(initData) {
+  try {
+    const u = new URLSearchParams(initData).get('user')
+    return u ? JSON.parse(u) : null
+  } catch {
+    return null
+  }
+}
+
+/* ---- Foydalanuvchini ro'yxatga olish (Mini App ochilганda) ---- */
+app.post('/api/register', (req, res) => {
+  const initData = req.body?.initData
+  let user = parseUser(initData) || req.body?.user
+  if (!user?.id) return res.json({ ok: false })
+  upsertUser(user)
+  res.json({ ok: true })
+})
+
+/* ---- Admin: foydalanuvchilar ro'yxati ---- */
+const ADMIN_KEY = process.env.ADMIN_KEY || ''
+app.get('/api/admin/users', (req, res) => {
+  const key = req.get('X-Admin-Key') || req.query.key
+  if (!ADMIN_KEY || key !== ADMIN_KEY) {
+    return res.status(401).json({ error: 'Ruxsat yo‘q' })
+  }
+  res.json({ users: listUsers() })
+})
 
 /* ---- Rol-o'yin javobi ---- */
 app.post('/api/reply', guard, async (req, res) => {

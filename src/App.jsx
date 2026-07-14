@@ -4,6 +4,8 @@ import Landing from './components/Landing'
 import Onboarding from './components/onboarding/Onboarding'
 import MainApp from './components/app/MainApp'
 import { loadState, saveState, DEFAULT_STATE, computeStreak } from './lib/storage'
+import { registerUser, isAdminRoute } from './lib/users'
+import Admin from './components/Admin'
 import './App.css'
 
 export default function App() {
@@ -11,6 +13,12 @@ export default function App() {
   const [screen, setScreen] = useState('loading')
   const [state, setState] = useState(DEFAULT_STATE)
   const loaded = useRef(false)
+  const admin = isAdminRoute()
+
+  // Telegram foydalanuvchisini backendga ro'yxatga olamiz
+  useEffect(() => {
+    if (telegram?.user) registerUser(telegram.user)
+  }, [telegram?.user])
 
   // Boshlanishida saqlangan holatni yuklaymiz
   useEffect(() => {
@@ -49,6 +57,8 @@ export default function App() {
     setState({ ...DEFAULT_STATE })
     setScreen('welcome')
   }
+
+  if (admin) return <Admin />
 
   if (screen === 'loading') {
     return (
