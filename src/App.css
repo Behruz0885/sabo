@@ -1390,3 +1390,113 @@
 }
 .badge--active { background: rgba(55, 214, 122, 0.15); color: var(--green); }
 .badge--inactive { background: rgba(154, 142, 132, 0.15); color: var(--muted); }
+
+/* ==== Admin dashboard (kengaytirilgan) ==== */
+.admin-login__logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(245, 132, 42, 0.2);
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+}
+.admin-login__logo svg { width: 30px; height: 30px; }
+.admin-login__logo svg path { fill: var(--orange); }
+
+.admin__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.admin__brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; }
+.admin__logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(245, 132, 42, 0.2);
+  display: grid;
+  place-items: center;
+}
+.admin__logo svg { width: 22px; height: 22px; }
+.admin__logo svg path { fill: var(--orange); }
+.admin__bar-actions { display: flex; gap: 10px; }
+.admin__btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: linear-gradient(120deg, var(--orange-2), var(--orange));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.admin__btn--ghost {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.admin__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .admin__stats { grid-template-columns: 1fr 1fr; }
+}
+.astat {
+  position: relative;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.astat__dot {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.astat__value { display: block; font-size: 30px; font-weight: 800; }
+.astat__label { font-size: 13px; color: var(--muted); }
+
+.admin__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+.admin__search input {
+  flex: 1;
+  padding: 13px 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+.admin__user { display: flex; align-items: center; gap: 10px; }
+.admin__ava {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.admin__muted { color: var(--muted); }
