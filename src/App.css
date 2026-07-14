@@ -1153,3 +1153,133 @@
 }
 .commit__fp svg { width: 30px; height: 30px; }
 .commit__hold--on .commit__fp { color: var(--orange); }
+
+/* ============ AI murabbiy chat ============ */
+.aichat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 0;
+}
+.aichat__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.aichat__id { display: flex; align-items: center; gap: 10px; }
+.aichat__ava {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(245, 132, 42, 0.2);
+  display: grid;
+  place-items: center;
+}
+.aichat__ava svg { width: 22px; height: 22px; }
+.aichat__ava svg path { fill: var(--orange); }
+.aichat__id b { font-size: 16px; font-weight: 800; }
+.aichat__id small { display: block; font-size: 12px; color: var(--muted); }
+.aichat__close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+.aichat__chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.aichat__chips button {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.aichat__chips button:active { border-color: var(--orange); }
+
+/* ============ Kurslar drawer (sidebar) ============ */
+.drawer {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+.drawer--open { pointer-events: auto; }
+.drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.drawer--open .drawer__backdrop { opacity: 1; }
+.drawer__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 82%;
+  max-width: 320px;
+  background: #1a130e;
+  border-right: 1px solid var(--border);
+  padding: calc(22px + env(safe-area-inset-top)) 16px 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transform: translateX(-102%);
+  transition: transform 0.3s ease;
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.5);
+}
+.drawer__panel::-webkit-scrollbar { display: none; }
+.drawer--open .drawer__panel { transform: translateX(0); }
+.drawer__label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 6px 4px 10px;
+}
+.drawer__list { display: flex; flex-direction: column; gap: 10px; }
+.dcourse {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  text-align: left;
+}
+.dcourse--current { border-color: var(--orange); margin-bottom: 22px; }
+.dcourse__icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.dcourse__icon svg { width: 26px; height: 26px; }
+.dcourse b { font-size: 15px; font-weight: 700; flex: 1; }
+.dcourse small { font-size: 13px; font-weight: 700; color: var(--muted); }
+.dcourse__text { flex: 1; }
+.dcourse__text b { display: block; }
+.dcourse__bar { height: 6px; border-radius: 6px; background: #3a2e27; margin: 7px 0 5px; overflow: hidden; }
+.dcourse__bar div { height: 100%; background: var(--orange); border-radius: 6px; }
+.dcourse__text small { color: var(--muted); font-weight: 500; }
+
+.ycourse__icon { display: grid; place-items: center; width: 26px; height: 26px; }
+.ycourse__icon svg { width: 24px; height: 24px; }

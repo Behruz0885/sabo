@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { PATH_LESSONS, CURRENT_MODULE } from '../../data/courses'
+import { PATH_LESSONS, CURRENT_MODULE, COURSES } from '../../data/courses'
 import { getLesson } from '../../data/lessons'
 import { Library, Insights, You } from './screens'
 import Lesson from '../lesson/Lesson'
+import AiChat from './AiChat'
+import OptIcon from '../onboarding/OptIcon'
 import {
   SparkLogo,
   BoltIcon,
@@ -25,7 +27,14 @@ export default function MainApp({ telegram, state, onCompleteLesson, onReset }) 
   const stats = { xp, streak }
   const [tab, setTab] = useState('home')
   const [activeLesson, setActiveLesson] = useState(null) // dars indeksi yoki null
+  const [aiChatOpen, setAiChatOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const { haptic } = telegram
+
+  const openAiChat = () => {
+    haptic('medium')
+    setAiChatOpen(true)
+  }
 
   const go = (t) => {
     haptic('light')
@@ -57,18 +66,67 @@ export default function MainApp({ telegram, state, onCompleteLesson, onReset }) 
     )
   }
 
+  if (aiChatOpen) {
+    return (
+      <div className="main">
+        <AiChat telegram={telegram} onClose={() => setAiChatOpen(false)} />
+      </div>
+    )
+  }
+
   return (
     <div className="main">
       <div className="main__screen">
         {tab === 'home' && (
-          <Home telegram={telegram} profile={profile} progress={progress} stats={stats} onOpenLesson={openLesson} />
+          <Home
+            telegram={telegram}
+            profile={profile}
+            progress={progress}
+            stats={stats}
+            onOpenLesson={openLesson}
+            onOpenDrawer={() => { haptic('light'); setDrawerOpen(true) }}
+          />
         )}
         {tab === 'library' && <Library />}
         {tab === 'insights' && <Insights />}
         {tab === 'you' && <You telegram={telegram} stats={stats} progress={progress} onReset={onReset} />}
       </div>
 
-      <TabBar tab={tab} go={go} onCenter={() => openLesson(progress)} />
+      <TabBar tab={tab} go={go} onCenter={openAiChat} />
+
+      <CourseDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} progress={progress} />
+    </div>
+  )
+}
+
+function CourseDrawer({ open, onClose, progress }) {
+  const current = COURSES.find((c) => c.current) || COURSES[0]
+  const others = COURSES.filter((c) => !c.current)
+  return (
+    <div className={`drawer ${open ? 'drawer--open' : ''}`} aria-hidden={!open}>
+      <div className="drawer__backdrop" onClick={onClose} />
+      <aside className="drawer__panel">
+        <h3 className="drawer__label">JORIY KURS</h3>
+        <div className="dcourse dcourse--current">
+          <span className="dcourse__icon" style={{ color: current.color }}><OptIcon name={current.icon} /></span>
+          <div className="dcourse__text">
+            <b>{current.title}</b>
+            <div className="dcourse__bar"><div style={{ width: `${(progress / current.total) * 100}%` }} /></div>
+            <small>{current.total} darsdan {progress} tasi bajarildi</small>
+          </div>
+        </div>
+
+        <h3 className="drawer__label">YANGI KURSLAR</h3>
+        <div className="drawer__list">
+          {others.map((c) => (
+            <button className="dcourse" key={c.title}>
+              <span className="dcourse__icon" style={{ color: c.color }}><OptIcon name={c.icon} /></span>
+              <b>{c.title}</b>
+              <small>{c.done}/{c.total}</small>
+            </button>
+          ))}
+        </div>
+      </aside>
     </div>
   )
 }
@@ -92,7 +150,7 @@ function HexNode({ status, onClick }) {
   )
 }
 
-function Home({ telegram, profile, progress, stats, onOpenLesson }) {
+function Home({ telegram, profile, progress, stats, onOpenLesson, onOpenDrawer }) {
   const { haptic } = telegram
 
   return (
@@ -136,7 +194,7 @@ function Home({ telegram, profile, progress, stats, onOpenLesson }) {
       </div>
 
       <div className="home2__cta">
-        <button className="home2__list" aria-label="Kurslar"><ListIcon /></button>
+        <button className="home2__list" onClick={onOpenDrawer} aria-label="Kurslar"><ListIcon /></button>
         <button className="home2__next" onClick={() => onOpenLesson(progress)}>
           {progress === 0 ? 'Boshlash' : 'Keyingi dars'} <ChevronIcon />
         </button>

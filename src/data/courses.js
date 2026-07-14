@@ -47,11 +47,11 @@ export const LIBRARY = [
   },
 ]
 
-// You — kurs tanlash (drawer / progress)
+// Kurslar — drawer va You ekrani uchun
 export const COURSES = [
-  { title: 'Karizma', icon: '👑', done: 0, total: 18, current: true },
-  { title: 'Suhbat asoslari', icon: '💬', done: 0, total: 41 },
-  { title: 'Tanishuv', icon: '❤️', done: 0, total: 27 },
-  { title: 'Do‘st orttirish', icon: '🍷', done: 0, total: 17 },
-  { title: 'Ish joyidagi muloqot', icon: '🧑‍💼', done: 0, total: 30 },
+  { title: 'Karizma', icon: 'crown', color: '#f0b400', done: 0, total: 18, current: true },
+  { title: 'Suhbat asoslari', icon: 'chatPlus', color: '#4a90e2', done: 0, total: 41 },
+  { title: 'Tanishuv', icon: 'heart', color: '#ff5c8a', done: 0, total: 27 },
+  { title: 'Do‘st orttirish', icon: 'people', color: '#a06bff', done: 0, total: 17 },
+  { title: 'Ish joyidagi muloqot', icon: 'briefcase', color: '#37d67a', done: 0, total: 30 },
 ]

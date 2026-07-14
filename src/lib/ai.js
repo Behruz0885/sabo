@@ -30,6 +30,18 @@ export async function getReply(history, practice) {
   return heuristicReply(history)
 }
 
+export async function getCoachReply(history) {
+  if (API) {
+    try {
+      const { reply } = await callBackend('/api/chat', { history })
+      if (reply) return reply
+    } catch (e) {
+      console.warn('AI murabbiy backend ishlamadi, heuristikaga o‘tildi:', e.message)
+    }
+  }
+  return heuristicCoach(history)
+}
+
 export async function getFeedback(history, practice) {
   if (API) {
     try {
@@ -43,6 +55,18 @@ export async function getFeedback(history, practice) {
 }
 
 /* ============ Heuristik zaxira ============ */
+async function heuristicCoach(history) {
+  await wait(700 + Math.random() * 500)
+  const last = (history[history.length - 1]?.text || '').toLowerCase()
+  if (last.includes('boshla') || last.includes('suhbat'))
+    return 'Suhbatni ochiq savol bilan boshla: “Bu yerga qanday kelib qolding?” yoki atrofdagi biror narsaga izoh ber. Muhimi — samimiy qiziqish. Keyingi qadam sifatida nima demoqchisan?'
+  if (last.includes('ishonch') || last.includes('qo‘rq') || last.includes('qorq'))
+    return 'Ishonch — mashqdan tug‘iladi. Kichik boshla: bugun bitta odamga savol ber. Nafasingni sekinlashtir, ko‘zga qara va shoshilma. Qaysi vaziyatда o‘zingni noqulay his qilasan?'
+  if (last.includes('ish') || last.includes('intervyu') || last.includes('suhbat'))
+    return 'Ish suhbatiga tayyorgarlik: yutuqlaringni STAR (Vaziyat–Vazifa–Harakat–Natija) formatida tayyorla. 2-3 ta misolni mashq qil. Qaysi savoldan hayotiroqsan?'
+  return 'Yaxshi savol! Buni birga hал qilaylik. Menga biroz batafsilroq ayt — qaysi vaziyat haqida gapiryapmiz?'
+}
+
 const REPLIES = [
   'Tanishganimdan xursandman! Bu yerga qanday kelib qolding?',
   'Qiziq ekan. Men ham shunga o‘xshash narsalarni yoqtiraman. Bo‘sh vaqtingda odatda nima qilasan?',

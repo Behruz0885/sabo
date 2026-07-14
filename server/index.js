@@ -105,6 +105,32 @@ app.post('/api/feedback', guard, async (req, res) => {
   }
 })
 
+/* ---- Erkin AI murabbiy chati ---- */
+app.post('/api/chat', guard, async (req, res) => {
+  const { history = [] } = req.body || {}
+  const system = {
+    role: 'system',
+    content:
+      `Sen "Sabo" — do‘stona AI muloqot va soft-skills murabbiysan. ` +
+      `Foydalanuvchiga suhbat boshlash, ijtimoiy ishonch, tanishuv, ish joyidagi muloqot ` +
+      `va hikoya qilish bo‘yicha yordam berasan. ` +
+      `O‘ZBEK TILIDA, iliq, qisqa (2-4 gap) va amaliy javob ber. ` +
+      `Imkon bo‘lsa aniq misol yoki bitta amaliy maslahat qo‘sh. ` +
+      `Ortiqcha rasmiyatchilikdan qoch, samimiy bo‘l.`,
+  }
+  const msgs = [
+    system,
+    ...history.map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
+  ]
+  try {
+    const reply = await chat(msgs, { temperature: 0.8 })
+    res.json({ reply })
+  } catch (e) {
+    console.error('chat xatosi:', e.message)
+    res.status(502).json({ error: 'AI javob bermadi' })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`✅ Sabo server ${PORT}-portda ishlayapti (LLM: ${hasKey() ? 'ulangan' : 'YO‘Q — kalit kiriting'})`)
 })

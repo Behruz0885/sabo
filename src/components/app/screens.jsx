@@ -1,5 +1,6 @@
 import { LIBRARY, COURSES } from '../../data/courses'
 import { SearchIcon, BookmarkIcon, FlameIcon, FreezeIcon, ClockIcon, CapIcon, SparkLogo } from '../icons'
+import OptIcon from '../onboarding/OptIcon'
 
 /* ---------- Library ---------- */
 export function Library() {
@@ -83,7 +84,7 @@ export function You({ telegram, stats: st = { xp: 0, streak: 0 }, progress = 0, 
         <div className="you__courses">
           {COURSES.map((c) => (
             <div className={`ycourse ${c.current ? 'ycourse--on' : ''}`} key={c.title}>
-              <span className="ycourse__icon">{c.icon}</span>
+              <span className="ycourse__icon" style={{ color: c.color }}><OptIcon name={c.icon} /></span>
               <div className="ycourse__text">
                 <b>{c.title}</b>
                 <div className="ycourse__bar"><div style={{ width: `${(c.done / c.total) * 100}%` }} /></div>
