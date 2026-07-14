@@ -1612,3 +1612,136 @@
 .modal__result { padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
 .modal__result.ok { background: rgba(55, 214, 122, 0.12); color: #bff0d2; }
 .modal__result.err { background: rgba(255, 92, 92, 0.12); color: #f4c4c4; }
+
+/* ==== Dars: bookmark, confetti, xatolik ==== */
+.lphase { position: relative; }
+.concept__save {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  z-index: 3;
+}
+.concept__save svg { width: 20px; height: 20px; }
+.concept__save.is-on { color: var(--orange); border-color: var(--orange); background: rgba(245, 132, 42, 0.12); }
+
+.chat__error {
+  align-self: center;
+  font-size: 13px;
+  color: #ff8080;
+  background: rgba(255, 92, 92, 0.12);
+  padding: 8px 14px;
+  border-radius: 12px;
+}
+
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+.confetti span {
+  position: absolute;
+  top: -14px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  to { transform: translateY(120vh) rotate(600deg); opacity: 0.3; }
+}
+
+/* ==== Library ==== */
+.course--on { outline: 2px solid var(--orange); border-radius: 16px; }
+.course__cover span { display: grid; place-items: center; }
+.course__cover svg { width: 36px; height: 36px; }
+
+/* ==== Insights saqlangan ==== */
+.ins__scroll { flex: 1; overflow-y: auto; scrollbar-width: none; padding-bottom: 14px; }
+.ins__scroll::-webkit-scrollbar { display: none; }
+.scard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+.scard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.scard__course { font-size: 12px; font-weight: 700; color: var(--orange); }
+.scard__del { color: var(--muted-2); font-size: 15px; }
+.scard__text { font-size: 14.5px; line-height: 1.45; margin-bottom: 8px; }
+.scard__lesson { font-size: 12px; color: var(--muted); }
+
+/* ==== Invite ==== */
+.invite {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  background: rgba(245, 132, 42, 0.12);
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.invite:active { transform: scale(0.98); }
+
+/* ==== Admin pagination ==== */
+.admin__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.admin__pager button {
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+.admin__pager button:disabled { opacity: 0.4; }
+
+/* ==== Broadcast+ ==== */
+.bc__tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.bc__tabs button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 14px;
+}
+.bc__tabs button.on { color: var(--orange); border-color: var(--orange); background: rgba(245, 132, 42, 0.1); }
+.bc__label { display: block; font-size: 12.5px; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }
+.bc__select, .bc__input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #140f0c;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+.bc__select:focus, .bc__input:focus { border-color: var(--orange); }
+.bc__row { display: flex; gap: 8px; }
+.bc__history { display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow-y: auto; }
+.bc__hist { background: #140f0c; border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.bc__hist-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.bc__hist-stat { color: var(--green); font-weight: 700; }
+.bc__hist p { font-size: 14px; margin-bottom: 5px; }
+.bc__hist small { font-size: 12px; color: var(--muted-2); }

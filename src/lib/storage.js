@@ -37,7 +37,9 @@ function rawSet(key, value) {
 export const DEFAULT_STATE = {
   onboarded: false,
   profile: null,
-  progress: 0,
+  courseId: 'charisma', // joriy kurs
+  progressByCourse: {}, // { courseId: tugatilgan darslar soni }
+  saved: [], // saqlangan insights (bookmark)
   xp: 0,
   streak: 0,
   lastActive: null, // ISO sana (streak hisobi uchun)

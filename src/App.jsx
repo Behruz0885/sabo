@@ -5,6 +5,7 @@ import Onboarding from './components/onboarding/Onboarding'
 import MainApp from './components/app/MainApp'
 import { loadState, saveState, DEFAULT_STATE, computeStreak } from './lib/storage'
 import { registerUser, reportProgress, isAdminRoute } from './lib/users'
+import { pickCourseId } from './data/content'
 import Admin from './components/Admin'
 import './App.css'
 
@@ -23,9 +24,10 @@ export default function App() {
   // Progressni backendga sinxronlaymiz (admin panelda ko'rinishi uchun)
   useEffect(() => {
     if (loaded.current && telegram?.user && state.onboarded) {
-      reportProgress(telegram.user, { xp: state.xp, streak: state.streak, progress: state.progress })
+      const total = Object.values(state.progressByCourse || {}).reduce((a, b) => a + b, 0)
+      reportProgress(telegram.user, { xp: state.xp, streak: state.streak, progress: total })
     }
-  }, [state.xp, state.streak, state.progress, state.onboarded, telegram?.user])
+  }, [state.xp, state.streak, state.progressByCourse, state.onboarded, telegram?.user])
 
   // Boshlanishida saqlangan holatni yuklaymiz
   useEffect(() => {
@@ -42,21 +44,31 @@ export default function App() {
   }, [state])
 
   const finishOnboarding = (answers) => {
-    setState((s) => ({ ...s, onboarded: true, profile: answers }))
+    setState((s) => ({ ...s, onboarded: true, profile: answers, courseId: pickCourseId(answers) }))
     setScreen('app')
   }
 
-  // Dars tugaganda: progress, XP, streak yangilanadi
-  const completeLesson = (lessonIndex, reward) => {
+  // Dars tugaganda: kurs progressi, XP, streak yangilanadi
+  const completeLesson = (courseId, lessonIndex, reward) => {
     setState((s) => {
       const { streak, lastActive } = computeStreak(s.streak, s.lastActive)
+      const cur = s.progressByCourse?.[courseId] || 0
       return {
         ...s,
-        progress: Math.max(s.progress, lessonIndex + 1),
+        progressByCourse: { ...s.progressByCourse, [courseId]: Math.max(cur, lessonIndex + 1) },
         xp: s.xp + reward,
         streak,
         lastActive,
       }
+    })
+  }
+
+  const setCourse = (courseId) => setState((s) => ({ ...s, courseId }))
+
+  const toggleSave = (item) => {
+    setState((s) => {
+      const exists = s.saved?.some((x) => x.id === item.id)
+      return { ...s, saved: exists ? s.saved.filter((x) => x.id !== item.id) : [item, ...(s.saved || [])] }
     })
   }
 
@@ -88,6 +100,8 @@ export default function App() {
           telegram={telegram}
           state={state}
           onCompleteLesson={completeLesson}
+          onSetCourse={setCourse}
+          onToggleSave={toggleSave}
           onReset={resetAll}
         />
       )}

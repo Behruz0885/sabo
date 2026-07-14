@@ -1,63 +1,53 @@
 import { useState } from 'react'
-import { PATH_LESSONS, CURRENT_MODULE, COURSES } from '../../data/courses'
-import { getLesson } from '../../data/lessons'
+import { COURSES, getCourse } from '../../data/content'
 import { Library, Insights, You } from './screens'
 import Lesson from '../lesson/Lesson'
 import AiChat from './AiChat'
 import OptIcon from '../onboarding/OptIcon'
 import {
-  SparkLogo,
-  BoltIcon,
-  FlameIcon,
-  FreezeIcon,
-  ListIcon,
-  ChevronIcon,
-  PlayIcon,
-  LockIcon,
-  CheckMark,
-  HomeIcon,
-  LibraryIcon,
-  InsightsIcon,
-  YouIcon,
-  PlusIcon,
+  SparkLogo, BoltIcon, FlameIcon, FreezeIcon, ListIcon, ChevronIcon,
+  PlayIcon, LockIcon, CheckMark, HomeIcon, LibraryIcon, InsightsIcon, YouIcon, PlusIcon,
 } from '../icons'
 
-export default function MainApp({ telegram, state, onCompleteLesson, onReset }) {
-  const { profile, progress, xp, streak } = state
+export default function MainApp({ telegram, state, onCompleteLesson, onSetCourse, onToggleSave, onReset }) {
+  const { profile, courseId, progressByCourse = {}, saved = [], xp, streak } = state
   const stats = { xp, streak }
+  const course = getCourse(courseId)
+  const progress = progressByCourse[courseId] || 0
+
   const [tab, setTab] = useState('home')
-  const [activeLesson, setActiveLesson] = useState(null) // dars indeksi yoki null
+  const [activeLesson, setActiveLesson] = useState(null)
   const [aiChatOpen, setAiChatOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { haptic } = telegram
 
-  const openAiChat = () => {
-    haptic('medium')
-    setAiChatOpen(true)
-  }
-
-  const go = (t) => {
-    haptic('light')
-    setTab(t)
-  }
-
+  const go = (t) => { haptic('light'); setTab(t) }
+  const openAiChat = () => { haptic('medium'); setAiChatOpen(true) }
   const openLesson = (index) => {
+    if (index >= course.lessons.length) return
     haptic('medium')
     setActiveLesson(index)
   }
-
   const completeLesson = (reward) => {
-    onCompleteLesson(activeLesson, reward)
+    onCompleteLesson(courseId, activeLesson, reward)
     setActiveLesson(null)
+  }
+  const chooseCourse = (id) => {
+    onSetCourse(id)
+    setDrawerOpen(false)
+    setTab('home')
   }
 
   if (activeLesson !== null) {
-    const l = PATH_LESSONS[activeLesson] || {}
-    const lesson = getLesson(activeLesson, l.title)
+    const lesson = course.lessons[activeLesson]
     return (
       <div className="main">
         <Lesson
           lesson={lesson}
+          course={course}
+          lessonIndex={activeLesson}
+          saved={saved}
+          onToggleSave={onToggleSave}
           telegram={telegram}
           onComplete={completeLesson}
           onClose={() => setActiveLesson(null)}
@@ -78,55 +68,18 @@ export default function MainApp({ telegram, state, onCompleteLesson, onReset }) 
     <div className="main">
       <div className="main__screen">
         {tab === 'home' && (
-          <Home
-            telegram={telegram}
-            profile={profile}
-            progress={progress}
-            stats={stats}
-            onOpenLesson={openLesson}
-            onOpenDrawer={() => { haptic('light'); setDrawerOpen(true) }}
-          />
+          <Home telegram={telegram} course={course} progress={progress} stats={stats}
+            onOpenLesson={openLesson} onOpenDrawer={() => { haptic('light'); setDrawerOpen(true) }} />
         )}
-        {tab === 'library' && <Library />}
-        {tab === 'insights' && <Insights />}
-        {tab === 'you' && <You telegram={telegram} stats={stats} progress={progress} onReset={onReset} />}
+        {tab === 'library' && <Library onOpenCourse={chooseCourse} currentId={courseId} />}
+        {tab === 'insights' && <Insights saved={saved} onRemove={onToggleSave} />}
+        {tab === 'you' && <You telegram={telegram} stats={stats} progressByCourse={progressByCourse} onReset={onReset} />}
       </div>
 
       <TabBar tab={tab} go={go} onCenter={openAiChat} />
 
-      <CourseDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} progress={progress} />
-    </div>
-  )
-}
-
-function CourseDrawer({ open, onClose, progress }) {
-  const current = COURSES.find((c) => c.current) || COURSES[0]
-  const others = COURSES.filter((c) => !c.current)
-  return (
-    <div className={`drawer ${open ? 'drawer--open' : ''}`} aria-hidden={!open}>
-      <div className="drawer__backdrop" onClick={onClose} />
-      <aside className="drawer__panel">
-        <h3 className="drawer__label">JORIY KURS</h3>
-        <div className="dcourse dcourse--current">
-          <span className="dcourse__icon" style={{ color: current.color }}><OptIcon name={current.icon} /></span>
-          <div className="dcourse__text">
-            <b>{current.title}</b>
-            <div className="dcourse__bar"><div style={{ width: `${(progress / current.total) * 100}%` }} /></div>
-            <small>{current.total} darsdan {progress} tasi bajarildi</small>
-          </div>
-        </div>
-
-        <h3 className="drawer__label">YANGI KURSLAR</h3>
-        <div className="drawer__list">
-          {others.map((c) => (
-            <button className="dcourse" key={c.title}>
-              <span className="dcourse__icon" style={{ color: c.color }}><OptIcon name={c.icon} /></span>
-              <b>{c.title}</b>
-              <small>{c.done}/{c.total}</small>
-            </button>
-          ))}
-        </div>
-      </aside>
+      <CourseDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)}
+        progressByCourse={progressByCourse} currentId={courseId} onChoose={chooseCourse} />
     </div>
   )
 }
@@ -150,16 +103,12 @@ function HexNode({ status, onClick }) {
   )
 }
 
-function Home({ telegram, profile, progress, stats, onOpenLesson, onOpenDrawer }) {
-  const { haptic } = telegram
-
+function Home({ telegram, course, progress, stats, onOpenLesson, onOpenDrawer }) {
+  const total = course.lessons.length
   return (
     <main className="home2">
       <header className="home2__top">
-        <div className="home2__brand">
-          <SparkLogo />
-          <span>Sabo</span>
-        </div>
+        <div className="home2__brand"><SparkLogo /><span>Sabo</span></div>
         <div className="home2__stats">
           <span className="hstat" style={{ color: '#f0b400' }}><BoltIcon /> {stats.xp}</span>
           <span className="hstat" style={{ color: '#f5842a' }}><FlameIcon /> {stats.streak}</span>
@@ -170,23 +119,23 @@ function Home({ telegram, profile, progress, stats, onOpenLesson, onOpenDrawer }
       <div className="home2__scroll">
         <div className="modcard">
           <div>
-            <span className="modcard__label">{CURRENT_MODULE.label}</span>
-            <span className="modcard__title">{CURRENT_MODULE.title}</span>
+            <span className="modcard__label">{course.category}</span>
+            <span className="modcard__title">{course.title}</span>
           </div>
-          <div className="modcard__ring" style={{ background: `conic-gradient(var(--orange) ${(progress / PATH_LESSONS.length) * 100}%, #3a2e27 0)` }} />
+          <div className="modcard__ring" style={{ background: `conic-gradient(var(--orange) ${(progress / total) * 100}%, #3a2e27 0)` }} />
         </div>
 
         <div className="npath">
-          {PATH_LESSONS.map((l, i) => {
+          {course.lessons.map((l, i) => {
             const status = statusFor(i, progress)
             return (
-              <div className={`npath__row ${i % 2 ? 'npath__row--r' : 'npath__row--l'}`} key={l.id}>
+              <div className={`npath__row ${i % 2 ? 'npath__row--r' : 'npath__row--l'}`} key={i}>
                 <div className="npath__node">
                   {status === 'current' && <div className="npath__here">Siz shu yerdasiz</div>}
                   <HexNode status={status} onClick={() => onOpenLesson(i)} />
                 </div>
                 <p className={`npath__title ${status === 'locked' ? 'is-locked' : ''}`}>{l.title}</p>
-                {i < PATH_LESSONS.length - 1 && <span className={`npath__dots ${i % 2 ? 'r' : 'l'}`} />}
+                {i < total - 1 && <span className={`npath__dots ${i % 2 ? 'r' : 'l'}`} />}
               </div>
             )
           })}
@@ -196,7 +145,7 @@ function Home({ telegram, profile, progress, stats, onOpenLesson, onOpenDrawer }
       <div className="home2__cta">
         <button className="home2__list" onClick={onOpenDrawer} aria-label="Kurslar"><ListIcon /></button>
         <button className="home2__next" onClick={() => onOpenLesson(progress)}>
-          {progress === 0 ? 'Boshlash' : 'Keyingi dars'} <ChevronIcon />
+          {progress === 0 ? 'Boshlash' : progress >= total ? 'Yakunlangan' : 'Keyingi dars'} <ChevronIcon />
         </button>
       </div>
     </main>
@@ -215,16 +164,46 @@ function TabBar({ tab, go, onCenter }) {
     <nav className="tabbar2">
       {items.map((it) =>
         it.id === 'center' ? (
-          <button key="center" className="tabbar2__center" onClick={onCenter} aria-label="Tezkor mashq">
-            <PlusIcon />
-          </button>
+          <button key="center" className="tabbar2__center" onClick={onCenter} aria-label="AI murabbiy"><PlusIcon /></button>
         ) : (
           <button key={it.id} className={`tab2 ${tab === it.id ? 'tab2--on' : ''}`} onClick={() => go(it.id)}>
-            {it.icon}
-            <span>{it.label}</span>
+            {it.icon}<span>{it.label}</span>
           </button>
         )
       )}
     </nav>
+  )
+}
+
+function CourseDrawer({ open, onClose, progressByCourse, currentId, onChoose }) {
+  const current = COURSES.find((c) => c.id === currentId) || COURSES[0]
+  const others = COURSES.filter((c) => c.id !== currentId)
+  const done = (c) => progressByCourse[c.id] || 0
+  return (
+    <div className={`drawer ${open ? 'drawer--open' : ''}`} aria-hidden={!open}>
+      <div className="drawer__backdrop" onClick={onClose} />
+      <aside className="drawer__panel">
+        <h3 className="drawer__label">JORIY KURS</h3>
+        <div className="dcourse dcourse--current">
+          <span className="dcourse__icon" style={{ color: current.color }}><OptIcon name={current.icon} /></span>
+          <div className="dcourse__text">
+            <b>{current.title}</b>
+            <div className="dcourse__bar"><div style={{ width: `${(done(current) / current.lessons.length) * 100}%` }} /></div>
+            <small>{current.lessons.length} darsdan {done(current)} tasi bajarildi</small>
+          </div>
+        </div>
+
+        <h3 className="drawer__label">BOSHQA KURSLAR</h3>
+        <div className="drawer__list">
+          {others.map((c) => (
+            <button className="dcourse" key={c.id} onClick={() => onChoose(c.id)}>
+              <span className="dcourse__icon" style={{ color: c.color }}><OptIcon name={c.icon} /></span>
+              <b>{c.title}</b>
+              <small>{done(c)}/{c.lessons.length}</small>
+            </button>
+          ))}
+        </div>
+      </aside>
+    </div>
   )
 }

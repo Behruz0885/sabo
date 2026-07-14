@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { fetchUsers, adminBroadcast, adminUserAction } from '../lib/users'
+import { fetchUsers, adminBroadcast, adminUserAction, fetchBroadcasts } from '../lib/users'
 import { SparkLogo, SearchIcon, CloseIcon } from './icons'
 
 const COUNTRY = {
@@ -47,6 +47,7 @@ export default function Admin() {
 
   const [selected, setSelected] = useState(null)
   const [bcast, setBcast] = useState(false)
+  const [page, setPage] = useState(1)
   const keyRef = useRef('')
 
   const load = async (silent) => {
@@ -76,6 +77,9 @@ export default function Admin() {
     const t = setInterval(() => load(true), 5000)
     return () => clearInterval(t)
   }, [authed])
+
+  // Filtr o'zgarsa birinchi sahifaga qaytamiz
+  useEffect(() => { setPage(1) }, [query, statusF, periodF, sort])
 
   const stats = useMemo(() => ({
     total: users.length,
@@ -148,6 +152,10 @@ export default function Admin() {
   }
 
   const maxG = Math.max(1, ...growth.map((g) => g.count))
+  const PAGE = 20
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE))
+  const curPage = Math.min(page, totalPages)
+  const pageRows = rows.slice((curPage - 1) * PAGE, curPage * PAGE)
   const cards = [
     { label: 'Jami foydalanuvchi', value: stats.total, color: '#f5842a' },
     { label: 'Faol (7 kun)', value: stats.active, color: '#37d67a' },
@@ -231,9 +239,9 @@ export default function Admin() {
           </thead>
           <tbody>
             {rows.length === 0 && <tr><td colSpan="9" className="admin__empty">Foydalanuvchi topilmadi</td></tr>}
-            {rows.map((u, i) => (
+            {pageRows.map((u, i) => (
               <tr key={u.id} onClick={() => setSelected(u)} className="admin__row">
-                <td className="admin__muted">{i + 1}</td>
+                <td className="admin__muted">{(curPage - 1) * PAGE + i + 1}</td>
                 <td>
                   <div className="admin__user">
                     <span className="admin__ava" style={{ background: avaColor(u.id) }}>{initials(u)}</span>
@@ -256,6 +264,14 @@ export default function Admin() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="admin__pager">
+          <button disabled={curPage <= 1} onClick={() => setPage(curPage - 1)}>← Oldingi</button>
+          <span>{curPage} / {totalPages}</span>
+          <button disabled={curPage >= totalPages} onClick={() => setPage(curPage + 1)}>Keyingi →</button>
+        </div>
+      )}
 
       {selected && <DetailModal u={selected} onClose={() => setSelected(null)} onAction={doAction} />}
       {bcast && <BroadcastModal keyVal={keyRef.current} onClose={() => setBcast(false)} />}
@@ -304,17 +320,33 @@ function DetailModal({ u, onClose, onAction }) {
   )
 }
 
-/* ---- Ommaviy xabar ---- */
+/* ---- Ommaviy xabar (broadcast+) ---- */
 function BroadcastModal({ keyVal, onClose }) {
   const [text, setText] = useState('')
+  const [segment, setSegment] = useState('all')
+  const [btnText, setBtnText] = useState('')
+  const [btnUrl, setBtnUrl] = useState('')
+  const [image, setImage] = useState('')
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState(null)
+  const [history, setHistory] = useState([])
+  const [showHist, setShowHist] = useState(false)
+
+  useEffect(() => {
+    fetchBroadcasts(keyVal).then(setHistory).catch(() => {})
+  }, [keyVal])
 
   const send = async () => {
-    if (!text.trim()) return
+    if (!text.trim() && !image.trim()) return
     setSending(true)
+    setResult(null)
     try {
-      setResult(await adminBroadcast(keyVal, text))
+      const payload = { text, segment }
+      if (btnText.trim() && btnUrl.trim()) payload.button = { text: btnText.trim(), url: btnUrl.trim() }
+      if (image.trim()) payload.image = image.trim()
+      const r = await adminBroadcast(keyVal, payload)
+      setResult(r)
+      fetchBroadcasts(keyVal).then(setHistory).catch(() => {})
     } catch (e) {
       setResult({ error: e.message })
     } finally {
@@ -327,16 +359,56 @@ function BroadcastModal({ keyVal, onClose }) {
       <div className="modal__box" onClick={(e) => e.stopPropagation()}>
         <button className="modal__close" onClick={onClose}><CloseIcon /></button>
         <h2 className="modal__title">📣 Ommaviy xabar</h2>
-        <p className="modal__hint">Barcha faol foydalanuvchilarga bot orqali yuboriladi. HTML teglar (&lt;b&gt;, &lt;i&gt;) qo‘llab-quvvatlanadi.</p>
-        <textarea className="modal__textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="Xabar matni..." rows={5} />
-        {result && (
-          result.error
-            ? <div className="modal__result err">Xato: {result.error}</div>
-            : <div className="modal__result ok">✅ Yuborildi: {result.sent} / {result.total} (xato: {result.failed})</div>
+
+        <div className="bc__tabs">
+          <button className={!showHist ? 'on' : ''} onClick={() => setShowHist(false)}>Yangi</button>
+          <button className={showHist ? 'on' : ''} onClick={() => setShowHist(true)}>Tarix ({history.length})</button>
+        </div>
+
+        {showHist ? (
+          <div className="bc__history">
+            {history.length === 0 && <p className="modal__hint">Hali xabar yuborilmagan.</p>}
+            {history.map((h, i) => (
+              <div className="bc__hist" key={i}>
+                <div className="bc__hist-top">
+                  <span>{new Date(h.at).toLocaleString('uz-UZ')}</span>
+                  <span className="bc__hist-stat">✅ {h.sent}/{h.total}</span>
+                </div>
+                <p>{h.text || '(rasm)'}</p>
+                <small>{h.segment === 'active' ? 'Faol' : 'Barcha'}{h.hasImage ? ' · 🖼' : ''}{h.hasButton ? ' · 🔘' : ''}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <label className="bc__label">Segment</label>
+            <select className="bc__select" value={segment} onChange={(e) => setSegment(e.target.value)}>
+              <option value="all">Barcha foydalanuvchilar</option>
+              <option value="active">Faqat faol (7 kun)</option>
+            </select>
+
+            <label className="bc__label">Xabar matni (HTML: &lt;b&gt;, &lt;i&gt;)</label>
+            <textarea className="modal__textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="Xabar matni..." rows={4} />
+
+            <label className="bc__label">Rasm URL (ixtiyoriy)</label>
+            <input className="bc__input" value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://.../rasm.jpg" />
+
+            <label className="bc__label">Tugma (ixtiyoriy)</label>
+            <div className="bc__row">
+              <input className="bc__input" value={btnText} onChange={(e) => setBtnText(e.target.value)} placeholder="Tugma matni" />
+              <input className="bc__input" value={btnUrl} onChange={(e) => setBtnUrl(e.target.value)} placeholder="https://..." />
+            </div>
+
+            {result && (
+              result.error
+                ? <div className="modal__result err">Xato: {result.error}</div>
+                : <div className="modal__result ok">✅ Yuborildi: {result.sent} / {result.total} (xato: {result.failed})</div>
+            )}
+            <button className="btn-primary" onClick={send} disabled={sending || (!text.trim() && !image.trim())}>
+              {sending ? 'Yuborilmoqda...' : 'Yuborish'}
+            </button>
+          </>
         )}
-        <button className="btn-primary" onClick={send} disabled={sending || !text.trim()}>
-          {sending ? 'Yuborilmoqda...' : 'Yuborish'}
-        </button>
       </div>
     </div>
   )

@@ -28,14 +28,20 @@ export async function reportProgress(user, stats) {
   }
 }
 
-export async function adminBroadcast(key, text) {
+export async function adminBroadcast(key, payload) {
   const res = await fetch(`${API}/api/admin/broadcast`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error('Yuborilmadi')
   return res.json()
+}
+
+export async function fetchBroadcasts(key) {
+  const res = await fetch(`${API}/api/admin/broadcasts`, { headers: { 'X-Admin-Key': key } })
+  if (!res.ok) throw new Error('Tarix olinmadi')
+  return (await res.json()).items || []
 }
 
 export async function adminUserAction(key, id, action) {

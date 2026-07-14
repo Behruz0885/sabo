@@ -17,6 +17,16 @@ export function useTelegram() {
     webApp.ready()
     webApp.expand()
 
+    // To'liq ekran (Bot API 8.0+), mavjud bo'lsa
+    try {
+      webApp.requestFullscreen?.()
+      webApp.disableVerticalSwipes?.()
+      webApp.setHeaderColor?.('#140f0c')
+      webApp.setBackgroundColor?.('#140f0c')
+    } catch {
+      /* eski versiyalarda mavjud emas */
+    }
+
     setTg(webApp)
     setUser(webApp.initDataUnsafe?.user ?? null)
   }, [])

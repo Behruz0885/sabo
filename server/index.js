@@ -4,6 +4,7 @@ import cors from 'cors'
 import crypto from 'crypto'
 import { chat, hasKey } from './llm.js'
 import { upsertUser, updateProgress, setBlocked, removeUser, listUsers, initUsers } from './users.js'
+import { addBroadcast, listBroadcasts } from './broadcasts.js'
 
 const app = express()
 app.use(express.json({ limit: '256kb' }))
@@ -97,33 +98,49 @@ app.post('/api/admin/user', adminAuth, (req, res) => {
   res.json({ ok: true })
 })
 
-/* ---- Admin: ommaviy xabar (broadcast) ---- */
-async function tgSend(chatId, text) {
-  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+/* ---- Admin: ommaviy xabar (broadcast+) ---- */
+const isActiveUser = (u) => Date.now() - (u.lastSeen || 0) < 7 * 86400000
+
+async function tgApi(method, payload) {
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+    body: JSON.stringify(payload),
   })
   return res.json()
 }
 
+app.get('/api/admin/broadcasts', adminAuth, (_req, res) => {
+  res.json({ items: listBroadcasts() })
+})
+
 app.post('/api/admin/broadcast', adminAuth, async (req, res) => {
-  const text = (req.body?.text || '').trim()
-  if (!text) return res.status(400).json({ error: 'Matn bo‘sh' })
+  const { text = '', segment = 'all', button, image } = req.body || {}
+  const msg = text.trim()
+  if (!msg && !image) return res.status(400).json({ error: 'Matn yoki rasm kerak' })
   if (!BOT_TOKEN) return res.status(500).json({ error: 'BOT_TOKEN yo‘q' })
 
-  const targets = listUsers().filter((u) => !u.blocked)
+  let targets = listUsers().filter((u) => !u.blocked)
+  if (segment === 'active') targets = targets.filter(isActiveUser)
+
+  const reply_markup =
+    button?.text && button?.url ? { inline_keyboard: [[{ text: button.text, url: button.url }]] } : undefined
+
   let sent = 0
   let failed = 0
   for (const u of targets) {
     try {
-      const r = await tgSend(u.id, text)
+      const r = image
+        ? await tgApi('sendPhoto', { chat_id: u.id, photo: image, caption: msg, parse_mode: 'HTML', reply_markup })
+        : await tgApi('sendMessage', { chat_id: u.id, text: msg, parse_mode: 'HTML', reply_markup })
       r.ok ? sent++ : failed++
     } catch {
       failed++
     }
     await new Promise((r) => setTimeout(r, 45)) // Telegram rate-limit
   }
+
+  addBroadcast({ text: msg, segment, hasImage: Boolean(image), hasButton: Boolean(reply_markup), sent, failed, total: targets.length })
   res.json({ ok: true, sent, failed, total: targets.length })
 })
 
