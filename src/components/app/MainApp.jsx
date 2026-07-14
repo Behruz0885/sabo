@@ -1,65 +1,71 @@
 import { useState } from 'react'
-import { COURSES, getCourse } from '../../data/content'
-import { Library, Insights, You } from './screens'
+import { COURSES, getCourse, COURSE_SUBTITLE, lessonMinutes } from '../../data/content'
+import { Library, Insights, You, Leaderboard, Settings } from './screens'
 import Lesson from '../lesson/Lesson'
 import AiChat from './AiChat'
 import OptIcon from '../onboarding/OptIcon'
 import {
-  SparkLogo, BoltIcon, FlameIcon, FreezeIcon, ListIcon, ChevronIcon,
-  PlayIcon, LockIcon, CheckMark, HomeIcon, LibraryIcon, InsightsIcon, YouIcon, PlusIcon,
+  SparkLogo, BoltIcon, FlameIcon, FreezeIcon, ListIcon, ChevronIcon, BackIcon,
+  PlayIcon, LockIcon, CheckMark, HomeIcon, LibraryIcon, InsightsIcon, YouIcon, PlusIcon, ClockIcon,
 } from '../icons'
 
 export default function MainApp({ telegram, state, onCompleteLesson, onSetCourse, onToggleSave, onReset }) {
-  const { profile, courseId, progressByCourse = {}, saved = [], xp, streak } = state
+  const { courseId, progressByCourse = {}, saved = [], xp, streak } = state
   const stats = { xp, streak }
   const course = getCourse(courseId)
   const progress = progressByCourse[courseId] || 0
 
   const [tab, setTab] = useState('home')
-  const [activeLesson, setActiveLesson] = useState(null)
+  const [activeLesson, setActiveLesson] = useState(null) // { courseId, index }
+  const [detailId, setDetailId] = useState(null) // kurs sahifasi
   const [aiChatOpen, setAiChatOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [subScreen, setSubScreen] = useState(null) // 'settings' | 'leaderboard'
   const { haptic } = telegram
 
   const go = (t) => { haptic('light'); setTab(t) }
   const openAiChat = () => { haptic('medium'); setAiChatOpen(true) }
-  const openLesson = (index) => {
-    if (index >= course.lessons.length) return
+
+  const openLesson = (cid, index) => {
+    const c = getCourse(cid)
+    if (index >= c.lessons.length) return
     haptic('medium')
-    setActiveLesson(index)
+    setActiveLesson({ courseId: cid, index })
   }
   const completeLesson = (reward) => {
-    onCompleteLesson(courseId, activeLesson, reward)
+    onCompleteLesson(activeLesson.courseId, activeLesson.index, reward)
     setActiveLesson(null)
   }
-  const chooseCourse = (id) => {
+  const openCourseDetail = (id) => { haptic('light'); setDetailId(id) }
+  const startFromDetail = (id, index) => {
     onSetCourse(id)
-    setDrawerOpen(false)
-    setTab('home')
+    setDetailId(null)
+    openLesson(id, index)
   }
+  const chooseCourse = (id) => { onSetCourse(id); setDrawerOpen(false); setTab('home') }
+  const openSettings = () => { haptic('light'); setSubScreen('settings') }
+  const openLeaderboard = () => { haptic('light'); setSubScreen('leaderboard') }
 
-  if (activeLesson !== null) {
-    const lesson = course.lessons[activeLesson]
+  /* ---- To'liq ekranli qatlamlar ---- */
+  if (activeLesson) {
+    const c = getCourse(activeLesson.courseId)
+    const lesson = c.lessons[activeLesson.index]
     return (
       <div className="main">
-        <Lesson
-          lesson={lesson}
-          course={course}
-          lessonIndex={activeLesson}
-          saved={saved}
-          onToggleSave={onToggleSave}
-          telegram={telegram}
-          onComplete={completeLesson}
-          onClose={() => setActiveLesson(null)}
-        />
+        <Lesson lesson={lesson} course={c} lessonIndex={activeLesson.index}
+          saved={saved} onToggleSave={onToggleSave} telegram={telegram}
+          onComplete={completeLesson} onClose={() => setActiveLesson(null)} />
       </div>
     )
   }
-
-  if (aiChatOpen) {
+  if (aiChatOpen) return <div className="main"><AiChat telegram={telegram} onClose={() => setAiChatOpen(false)} /></div>
+  if (subScreen === 'settings') return <div className="main"><Settings telegram={telegram} onReset={onReset} onBack={() => setSubScreen(null)} /></div>
+  if (subScreen === 'leaderboard') return <div className="main"><Leaderboard telegram={telegram} xp={xp} onBack={() => setSubScreen(null)} /></div>
+  if (detailId) {
     return (
       <div className="main">
-        <AiChat telegram={telegram} onClose={() => setAiChatOpen(false)} />
+        <CourseDetail course={getCourse(detailId)} progress={progressByCourse[detailId] || 0}
+          onBack={() => setDetailId(null)} onOpenLesson={(i) => startFromDetail(detailId, i)} />
       </div>
     )
   }
@@ -69,15 +75,18 @@ export default function MainApp({ telegram, state, onCompleteLesson, onSetCourse
       <div className="main__screen">
         {tab === 'home' && (
           <Home telegram={telegram} course={course} progress={progress} stats={stats}
-            onOpenLesson={openLesson} onOpenDrawer={() => { haptic('light'); setDrawerOpen(true) }} />
+            onOpenLesson={(i) => openLesson(courseId, i)} onOpenDrawer={() => { haptic('light'); setDrawerOpen(true) }} />
         )}
-        {tab === 'library' && <Library onOpenCourse={chooseCourse} currentId={courseId} />}
+        {tab === 'library' && <Library onOpenCourse={openCourseDetail} currentId={courseId} onOpenSettings={openSettings} />}
         {tab === 'insights' && <Insights saved={saved} onRemove={onToggleSave} />}
-        {tab === 'you' && <You telegram={telegram} stats={stats} progressByCourse={progressByCourse} activeDays={state.activeDays || []} onReset={onReset} />}
+        {tab === 'you' && (
+          <You telegram={telegram} stats={stats} progressByCourse={progressByCourse}
+            activeDays={state.activeDays || []} onReset={onReset}
+            onOpenSettings={openSettings} onOpenLeaderboard={openLeaderboard} />
+        )}
       </div>
 
       <TabBar tab={tab} go={go} onCenter={openAiChat} />
-
       <CourseDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)}
         progressByCourse={progressByCourse} currentId={courseId} onChoose={chooseCourse} />
     </div>
@@ -115,7 +124,6 @@ function Home({ telegram, course, progress, stats, onOpenLesson, onOpenDrawer })
           <span className="hstat" style={{ color: '#a06bff' }}><FreezeIcon /> 1</span>
         </div>
       </header>
-
       <div className="home2__scroll">
         <div className="modcard">
           <div>
@@ -124,7 +132,6 @@ function Home({ telegram, course, progress, stats, onOpenLesson, onOpenDrawer })
           </div>
           <div className="modcard__ring" style={{ background: `conic-gradient(var(--orange) ${(progress / total) * 100}%, #3a2e27 0)` }} />
         </div>
-
         <div className="npath">
           {course.lessons.map((l, i) => {
             const status = statusFor(i, progress)
@@ -141,12 +148,54 @@ function Home({ telegram, course, progress, stats, onOpenLesson, onOpenDrawer })
           })}
         </div>
       </div>
-
       <div className="home2__cta">
         <button className="home2__list" onClick={onOpenDrawer} aria-label="Kurslar"><ListIcon /></button>
         <button className="home2__next" onClick={() => onOpenLesson(progress)}>
           {progress === 0 ? 'Boshlash' : progress >= total ? 'Yakunlangan' : 'Keyingi dars'} <ChevronIcon />
         </button>
+      </div>
+    </main>
+  )
+}
+
+/* ---- Kurs sahifasi (detail) ---- */
+function CourseDetail({ course, progress, onBack, onOpenLesson }) {
+  const total = course.lessons.length
+  const pct = Math.round((progress / total) * 100)
+  return (
+    <main className="cdetail">
+      <div className="cdetail__hero" style={{ background: `linear-gradient(160deg, ${course.color}55, #1a120d)` }}>
+        <button className="cdetail__back" onClick={onBack} aria-label="Orqaga"><BackIcon /></button>
+        <span className="cdetail__heroicon" style={{ color: course.color }}><OptIcon name={course.icon} /></span>
+      </div>
+      <div className="cdetail__body">
+        <h1 className="cdetail__title">{course.title}</h1>
+        <p className="cdetail__sub">{COURSE_SUBTITLE[course.id] || course.category}</p>
+        <div className="cdetail__bar"><div style={{ width: `${pct}%` }} /><span>{pct}%</span></div>
+        <button className="btn-primary" onClick={() => onOpenLesson(Math.min(progress, total - 1))}>
+          {progress === 0 ? 'Boshlash' : progress >= total ? 'Takrorlash' : 'Davom etish'}
+        </button>
+
+        <div className="ctimeline">
+          {course.lessons.map((l, i) => {
+            const status = statusFor(i, progress)
+            const locked = status === 'locked'
+            return (
+              <button key={i} className={`titem titem--${status}`} disabled={locked} onClick={() => onOpenLesson(i)}>
+                <span className="titem__marker">
+                  {status === 'done' ? <CheckMark /> : status === 'current' ? '' : <LockIcon />}
+                </span>
+                <div className="titem__card">
+                  <div className="titem__top">
+                    <b>{l.title}</b>
+                    <span className="titem__min"><ClockIcon /> {lessonMinutes(l)}M</span>
+                  </div>
+                  <p>{l.concepts[0]?.heading}</p>
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </main>
   )
@@ -192,7 +241,6 @@ function CourseDrawer({ open, onClose, progressByCourse, currentId, onChoose }) 
             <small>{current.lessons.length} darsdan {done(current)} tasi bajarildi</small>
           </div>
         </div>
-
         <h3 className="drawer__label">BOSHQA KURSLAR</h3>
         <div className="drawer__list">
           {others.map((c) => (

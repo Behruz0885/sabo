@@ -230,6 +230,19 @@ export const COURSES = [
   },
 ]
 
+export const COURSE_SUBTITLE = {
+  charisma: 'Bemalol karizma ortidagi ichki holatni qayta sozlash.',
+  convo: 'Har qanday suhbatni ishonch bilan boshlash va davom ettirish.',
+  dating: 'Bosimsiz, tabiiy va o‘ziga ishongan tanishuv.',
+  friends: 'Yangi do‘stlik boshlash va uni saqlab qolish.',
+  work: 'Ish joyida aniq, ishonchli va ta’sirli muloqot.',
+}
+
+// Dars taxminiy davomiyligi (daqiqa)
+export function lessonMinutes(lesson) {
+  return 5 + (lesson.concepts?.length || 0) + (lesson.quiz?.length || 0)
+}
+
 // Kategoriyaga qarab kutubxona
 export function libraryByCategory() {
   const map = {}

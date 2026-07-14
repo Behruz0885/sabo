@@ -16,13 +16,16 @@ const rankOf = (xp) => Math.max(1, 130000 - xp * 13)
 const fmtNum = (n) => n.toLocaleString('en-US')
 
 /* ================= Library ================= */
-export function Library({ onOpenCourse, currentId }) {
+export function Library({ onOpenCourse, currentId, onOpenSettings }) {
   const groups = libraryByCategory()
   return (
     <main className="lib">
       <header className="lib__top">
         <h1>Kutubxona</h1>
-        <button className="lib__search" aria-label="Qidirish"><SearchIcon /></button>
+        <div className="lib__actions">
+          <button className="lib__ibtn" aria-label="Qidirish"><SearchIcon /></button>
+          <button className="lib__ibtn" onClick={onOpenSettings} aria-label="Sozlamalar"><SettingsIcon /></button>
+        </div>
       </header>
       <div className="lib__scroll">
         {groups.map((g) => (
@@ -76,11 +79,7 @@ export function Insights({ saved = [], onRemove }) {
 }
 
 /* ================= You ================= */
-export function You({ telegram, stats: st = { xp: 0, streak: 0 }, progressByCourse = {}, activeDays = [], onReset }) {
-  const [view, setView] = useState('main')
-  if (view === 'board') return <Leaderboard telegram={telegram} xp={st.xp} onBack={() => setView('main')} />
-  if (view === 'settings') return <Settings telegram={telegram} onReset={onReset} onBack={() => setView('main')} />
-
+export function You({ telegram, stats: st = { xp: 0, streak: 0 }, progressByCourse = {}, activeDays = [], onReset, onOpenSettings, onOpenLeaderboard }) {
   const name = telegram?.user?.first_name || 'Foydalanuvchi'
   const totalDone = Object.values(progressByCourse).reduce((a, b) => a + b, 0)
   const { level, inLevel, title } = levelInfo(st.xp)
@@ -107,7 +106,7 @@ export function You({ telegram, stats: st = { xp: 0, streak: 0 }, progressByCour
             <b>{name}</b>
             <small>Qo‘shildi: {new Date().toLocaleDateString('uz-UZ', { day: '2-digit', month: 'long', year: 'numeric' })}</small>
           </div>
-          <button className="you__gear" onClick={() => setView('settings')} aria-label="Sozlamalar"><SettingsIcon /></button>
+          <button className="you__gear" onClick={onOpenSettings} aria-label="Sozlamalar"><SettingsIcon /></button>
         </header>
 
         {/* Level card */}
@@ -118,7 +117,7 @@ export function You({ telegram, stats: st = { xp: 0, streak: 0 }, progressByCour
           <b className="levelcard__title">{title}</b>
           <span className="levelcard__xp">{inLevel} / 100 XP</span>
           <div className="levelcard__bar"><div style={{ width: `${inLevel}%` }} /></div>
-          <button className="levelcard__foot" onClick={() => setView('board')}>
+          <button className="levelcard__foot" onClick={onOpenLeaderboard}>
             <span><BoltIcon /> <b>{st.xp}</b> Total XP</span>
             <span className="levelcard__rank">👑 #{fmtNum(rankOf(st.xp))} <ChevronRight /></span>
           </button>
