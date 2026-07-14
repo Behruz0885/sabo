@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { fetchUsers, adminBroadcast, adminUserAction, fetchBroadcasts } from '../lib/users'
+import { fetchUsers, adminBroadcast, adminUserAction, fetchBroadcasts, fetchHealth } from '../lib/users'
 import { SparkLogo, SearchIcon, CloseIcon } from './icons'
 
 const COUNTRY = {
@@ -48,6 +48,7 @@ export default function Admin() {
   const [selected, setSelected] = useState(null)
   const [bcast, setBcast] = useState(false)
   const [page, setPage] = useState(1)
+  const [health, setHealth] = useState(null)
   const keyRef = useRef('')
 
   const load = async (silent) => {
@@ -69,6 +70,7 @@ export default function Admin() {
     e?.preventDefault?.()
     keyRef.current = key
     await load(false)
+    fetchHealth().then(setHealth)
   }
 
   // Avtomatik yangilanish (5s)
@@ -169,6 +171,12 @@ export default function Admin() {
         <div className="admin__brand">
           <span className="admin__logo"><SparkLogo /></span>
           <b>Sabo Admin</b>
+          {health && (
+            <span className={`aibadge ${health.llm ? 'aibadge--on' : 'aibadge--off'}`}>
+              <i />
+              {health.llm ? `AI: ${health.provider} · ${health.model}` : 'AI ulanmagan'}
+            </span>
+          )}
         </div>
         <div className="admin__bar-actions">
           <span className="admin__updated">Yangilangan: {updated ? new Date(updated).toLocaleTimeString('uz-UZ') : '—'}</span>

@@ -23,6 +23,11 @@ export function hasKey() {
 export function provider() {
   return PROVIDER
 }
+export function model() {
+  if (PROVIDER === 'none') return null
+  if (PROVIDER === 'gemini') return GEMINI_MODEL
+  return process.env.MODEL || OPENAI_COMPAT[PROVIDER].model
+}
 
 /* ---- Gemini (native) ---- */
 async function geminiChat(messages, { json, temperature }) {

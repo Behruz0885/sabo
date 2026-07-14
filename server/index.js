@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import crypto from 'crypto'
-import { chat, hasKey, provider } from './llm.js'
+import { chat, hasKey, provider, model } from './llm.js'
 import { upsertUser, updateProgress, setBlocked, removeUser, listUsers, initUsers } from './users.js'
 import { addBroadcast, listBroadcasts } from './broadcasts.js'
 
@@ -43,7 +43,7 @@ function guard(req, res, next) {
 }
 
 /* ---- Salomatlik ---- */
-app.get('/health', (_req, res) => res.json({ ok: true, llm: hasKey(), provider: provider() }))
+app.get('/health', (_req, res) => res.json({ ok: true, llm: hasKey(), provider: provider(), model: model() }))
 
 /* ---- initData'dan foydalanuvchini ajratish ---- */
 function parseUser(initData) {

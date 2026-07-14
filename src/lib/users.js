@@ -38,6 +38,17 @@ export async function adminBroadcast(key, payload) {
   return res.json()
 }
 
+export async function fetchHealth() {
+  if (!API) return null
+  try {
+    const res = await fetch(`${API}/health`)
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
+
 export async function fetchBroadcasts(key) {
   const res = await fetch(`${API}/api/admin/broadcasts`, { headers: { 'X-Admin-Key': key } })
   if (!res.ok) throw new Error('Tarix olinmadi')

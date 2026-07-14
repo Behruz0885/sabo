@@ -1911,3 +1911,22 @@
 .titem__min { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); white-space: nowrap; }
 .titem__min svg { width: 14px; height: 14px; }
 .titem__card p { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.35; }
+
+/* ==== Admin AI badge ==== */
+.aibadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  margin-left: 6px;
+}
+.aibadge i { width: 8px; height: 8px; border-radius: 50%; }
+.aibadge--on { color: var(--green); }
+.aibadge--on i { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.aibadge--off { color: #ff6b6b; }
+.aibadge--off i { background: #ff6b6b; }
