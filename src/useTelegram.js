@@ -31,17 +31,26 @@ export function useTelegram() {
     const applyInsets = () => {
       const sa = webApp.safeAreaInset || {}
       const csa = webApp.contentSafeAreaInset || {}
-      const top = (sa.top || 0) + (csa.top || 0)
-      const bottom = (sa.bottom || 0) + (csa.bottom || 0)
+      let top = (sa.top || 0) + (csa.top || 0)
+      let bottom = (sa.bottom || 0) + (csa.bottom || 0)
+
+      // Fullscreen'da insetlar hali kelmagan bo'lsa — zaxira minimal offset
+      if (webApp.isFullscreen && top < 50) {
+        top = Math.max((sa.top || 0) + 62, 96)
+      }
+
       const root = document.documentElement.style
       root.setProperty('--safe-top', `${Math.max(top, 0)}px`)
       root.setProperty('--safe-bottom', `${Math.max(bottom, 0)}px`)
     }
     applyInsets()
+    // Insetlar kechroq kelishi mumkin — bir necha marta qayta o'qiymiz
+    ;[100, 300, 600, 1200].forEach((ms) => setTimeout(applyInsets, ms))
     try {
       webApp.onEvent?.('safeAreaChanged', applyInsets)
       webApp.onEvent?.('contentSafeAreaChanged', applyInsets)
       webApp.onEvent?.('fullscreenChanged', applyInsets)
+      webApp.onEvent?.('viewportChanged', applyInsets)
     } catch {
       /* mavjud emas */
     }
