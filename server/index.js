@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import crypto from 'crypto'
 import { chat, hasKey } from './llm.js'
-import { upsertUser, listUsers } from './users.js'
+import { upsertUser, listUsers, initUsers } from './users.js'
 
 const app = express()
 app.use(express.json({ limit: '256kb' }))
@@ -161,6 +161,9 @@ app.post('/api/chat', guard, async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`✅ Sabo server ${PORT}-portda ishlayapti (LLM: ${hasKey() ? 'ulangan' : 'YO‘Q — kalit kiriting'})`)
+// Ishga tushganda kanaldan bazani tiklaymiz, keyin serverni ochamiz
+initUsers().finally(() => {
+  app.listen(PORT, () => {
+    console.log(`✅ Sabo server ${PORT}-portda ishlayapti (LLM: ${hasKey() ? 'ulangan' : 'YO‘Q'})`)
+  })
 })

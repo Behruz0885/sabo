@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { scheduleBackup, restore, enabled } from './tgdb.js'
 
 const DIR = dirname(fileURLToPath(import.meta.url))
 const FILE = join(DIR, 'users.json')
@@ -38,8 +39,21 @@ export function upsertUser(u) {
     lastSeen: now,
   }
   persist(data)
+  scheduleBackup(Object.values(data)) // Telegram kanalga zaxira
 }
 
 export function listUsers() {
   return Object.values(load()).sort((a, b) => b.joined - a.joined)
+}
+
+// Ishga tushganda kanaldagi bazadan tiklash
+export async function initUsers() {
+  if (!enabled()) return
+  const arr = await restore()
+  if (Array.isArray(arr) && arr.length) {
+    const map = {}
+    for (const u of arr) if (u?.id) map[String(u.id)] = u
+    persist(map)
+    console.log(`🗃 Kanaldan ${arr.length} foydalanuvchi tiklandi`)
+  }
 }
