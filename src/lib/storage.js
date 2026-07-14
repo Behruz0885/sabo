@@ -40,6 +40,7 @@ export const DEFAULT_STATE = {
   courseId: 'charisma', // joriy kurs
   progressByCourse: {}, // { courseId: tugatilgan darslar soni }
   saved: [], // saqlangan insights (bookmark)
+  activeDays: [], // faol kunlar ['YYYY-MM-DD'] (kalendar uchun)
   xp: 0,
   streak: 0,
   lastActive: null, // ISO sana (streak hisobi uchun)

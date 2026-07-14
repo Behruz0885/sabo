@@ -53,9 +53,12 @@ export default function App() {
     setState((s) => {
       const { streak, lastActive } = computeStreak(s.streak, s.lastActive)
       const cur = s.progressByCourse?.[courseId] || 0
+      const today = new Date().toISOString().slice(0, 10)
+      const activeDays = s.activeDays?.includes(today) ? s.activeDays : [...(s.activeDays || []), today]
       return {
         ...s,
         progressByCourse: { ...s.progressByCourse, [courseId]: Math.max(cur, lessonIndex + 1) },
+        activeDays,
         xp: s.xp + reward,
         streak,
         lastActive,

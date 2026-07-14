@@ -73,7 +73,7 @@ export default function MainApp({ telegram, state, onCompleteLesson, onSetCourse
         )}
         {tab === 'library' && <Library onOpenCourse={chooseCourse} currentId={courseId} />}
         {tab === 'insights' && <Insights saved={saved} onRemove={onToggleSave} />}
-        {tab === 'you' && <You telegram={telegram} stats={stats} progressByCourse={progressByCourse} onReset={onReset} />}
+        {tab === 'you' && <You telegram={telegram} stats={stats} progressByCourse={progressByCourse} activeDays={state.activeDays || []} onReset={onReset} />}
       </div>
 
       <TabBar tab={tab} go={go} onCenter={openAiChat} />

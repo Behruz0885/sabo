@@ -51,6 +51,7 @@ function ConceptPhase({ lesson, course, lessonIndex, saved, onToggleSave, haptic
         <button className={`concept__save ${isSaved ? 'is-on' : ''}`} onClick={save} aria-label="Saqlash">
           <BookmarkIcon />
         </button>
+        <span className="lkicker">📘 O‘RGANISH</span>
         <div className="concept__emoji">{c.emoji}</div>
         <h1 className="concept__heading">{c.heading}</h1>
         <p className="concept__body">{c.body}</p>
@@ -70,13 +71,15 @@ function QuizPhase({ lesson, haptic, onDone }) {
   const last = i === lesson.quiz.length - 1
   const answered = sel !== null
 
+  const correct = sel === q.correct
   const pick = (idx) => { if (answered) return; setSel(idx); haptic(idx === q.correct ? 'medium' : 'light') }
+  const retry = () => setSel(null)
   const next = () => { if (last) onDone(); else { setI((n) => n + 1); setSel(null) } }
 
   return (
     <div className="lphase">
       <div className="quiz">
-        <span className="quiz__count">{i + 1} / {lesson.quiz.length}</span>
+        <span className="lkicker lkicker--blue">☑ TEST · {i + 1}/{lesson.quiz.length}</span>
         <h1 className="quiz__q">{q.q}</h1>
         <div className="opts">
           {q.options.map((o, idx) => {
@@ -84,21 +87,30 @@ function QuizPhase({ lesson, haptic, onDone }) {
             if (answered) { if (idx === q.correct) cls = 'opt--correct'; else if (idx === sel) cls = 'opt--wrong' }
             return (
               <button key={idx} className={`opt ${cls}`} onClick={() => pick(idx)}>
-                <span className="opt__label">{o}</span>
                 {answered && idx === q.correct && <span className="opt__mark ok"><CheckMark /></span>}
                 {answered && idx === sel && idx !== q.correct && <span className="opt__mark no">✕</span>}
+                <span className="opt__label">{o}</span>
               </button>
             )
           })}
         </div>
         {answered && (
-          <div className={`quiz__explain ${sel === q.correct ? 'ok' : 'no'}`}>
-            <b>{sel === q.correct ? 'To‘g‘ri! ' : 'Yaqin edi. '}</b>{q.explain}
+          <div className={`quiz__explain ${correct ? 'ok' : 'no'}`}>
+            <div className="quiz__explain-top">
+              <b>{correct ? '✓ To‘g‘ri!' : '✕ Noto‘g‘ri'}</b>
+              <span className="quiz__report">⚑ Xabar berish</span>
+            </div>
+            {!correct && <div className="quiz__best">To‘g‘ri javob: <b>{q.options[q.correct]}</b></div>}
+            <div className="quiz__why">
+              <span className="quiz__why-label">NEGA SHUNDAY</span>
+              <p>{q.explain}</p>
+            </div>
           </div>
         )}
       </div>
       <div className="lesson__foot">
-        <button className="btn-primary" disabled={!answered} onClick={next}>{last ? 'Mashqqa o‘tish' : 'Keyingi savol'}</button>
+        {answered && !correct && <button className="btn-ghost" onClick={retry}>Qayta urinish</button>}
+        <button className="btn-primary" disabled={!answered} onClick={next}>{last ? 'Mashqqa o‘tish' : 'Davom etish'}</button>
       </div>
     </div>
   )

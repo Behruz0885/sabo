@@ -76,6 +76,9 @@ const ICONS = {
   target: (
     <svg {...S}><circle cx="12" cy="12" r="8.5" {...stroke} /><circle cx="12" cy="12" r="4.5" {...stroke} /><circle cx="12" cy="12" r="1.2" {...fill} /></svg>
   ),
+  bulb: (
+    <svg {...S}><path d="M9 18h6M10 21h4" {...stroke} /><path d="M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.5 1-2.1A6 6 0 0 0 12 3Z" {...stroke} /></svg>
+  ),
   fingerprint: (
     <svg {...S}><path d="M12 4a8 8 0 0 0-8 8M20 12a8 8 0 0 0-4-6.9M7 12a5 5 0 0 1 10 0v2M9.5 12a2.5 2.5 0 0 1 5 0v3M12 15v4M7 15v2M17 16v2" {...stroke} /></svg>
   ),
