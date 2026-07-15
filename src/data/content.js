@@ -1,4 +1,4 @@
-// Sabo — to'liq kontent. Kurslar, ularning darslari (nazariya, quiz, AI mashq).
+// Sabo — kontent. Matnlar iliq, hikoyaviy va insoniy ohangda yozilgan.
 
 export const COURSES = [
   {
@@ -12,47 +12,117 @@ export const COURSES = [
         title: 'His qildir, ko‘rinma',
         reward: 20,
         concepts: [
-          { emoji: '✨', heading: 'Karizma — o‘zingni ko‘rsatish emas', body: 'Odamlar seni tez unutadi, lekin sen bilan bo‘lganda o‘zlarini qanday his qilganini uzoq eslaydi. Karizma — aynan shu his.' },
-          { emoji: '👂', heading: 'Diqqatni ularga qarat', body: 'Eng jozibali odamlar ko‘p gapirmaydi — yaxshi savol beradi va chin dildan tinglaydi. Suhbatni suhbatdoshing haqida qil.' },
+          {
+            emoji: '✨',
+            heading: 'Odamlar sizni tuyg‘u orqali eslaydi',
+            body:
+              'Bir yil oldin kimdir bilan aynan nima haqida gaplashganingiz esingizdami? Ehtimol yo‘q. ' +
+              'Lekin o‘sha odam yoningizda o‘zingizni qanday his qilganingiz — yengilmi yoki tarangmi — hali ham yodingizda. ' +
+              'Karizma ham shunaqa: aytgan gapingiz emas, qoldirgan tuyg‘uingiz esda qoladi.',
+          },
+          {
+            emoji: '👂',
+            heading: 'Diqqatni o‘zingizdan olib, unga bering',
+            body:
+              'Ko‘pchilik suhbatda “keyin nima desam” deb o‘ylab yuradi. Aslida sehr boshqa joyda: ' +
+              'suhbatdoshga chin qiziqish bilan bitta savol bering va javobini bo‘lmasdan tinglang. ' +
+              'Shu bitta odat sizni xonadagi eng yoqimli odamga aylantiradi.',
+          },
         ],
         quiz: [
-          { q: 'Karizma asosan nimaga bog‘liq?', options: ['Qimmat kiyim', 'Odamlarni qanday his qildirishing', 'Ko‘p gapirish', 'Baland ovoz'], correct: 1, explain: 'Karizma — odamlarda qoldirgan hissing.' },
-          { q: 'Haqiqiy aloqani qanday yaratasan?', options: ['O‘zing haqingda ko‘p gapirib', 'Ochiq savol berib va tinglab', 'Telefonga qarab', 'Jim turib'], correct: 1, explain: 'Savol + samimiy tinglash qadrlanish hissini beradi.' },
+          {
+            q: 'Odamda karizmatik taassurot nima qoldiradi?',
+            options: ['Chiroyli kiyimi', 'U yoningizda o‘zingizni qanday his qilganingiz', 'Qancha ko‘p gapirgani', 'Ovozining balandligi'],
+            correct: 1,
+            explain: 'Detallar unutiladi, tuyg‘u qoladi. Odamni o‘zi haqida yaxshi his qildirsangiz — sizni eslab qoladi.',
+          },
         ],
-        practice: { scenario: 'Tanishuv kechasidasan. Yoningdagi notanish odam bilan iliq suhbat boshla.', goal: 'Kamida bitta ochiq savol ber.', persona: 'Kamola' },
+        practice: {
+          scenario: 'Tadbirda yoningizda notanish odam turibdi. Uni suhbatga torting va o‘ziga qiziqayotganingizni his qildiring.',
+          goal: 'Kamida bitta ochiq savol bering va javobiga chin e’tibor qarating.',
+          persona: 'Kamola',
+        },
       },
       {
         title: 'Karizma baland ovoz emas',
         reward: 20,
         concepts: [
-          { emoji: '🧘', heading: 'Xotirjamlik — kuch', body: 'Shoshmaslik va vazminlik ishonch belgisi. Pauza qilishdan qo‘rqma — u so‘zlaringga vazn beradi.' },
+          {
+            emoji: '🌿',
+            heading: 'Vazminlik — ishonchning tili',
+            body:
+              'Eng ishonchli odamlar tez gapirmaydi. Ular pauza qilishdan qo‘rqmaydi. ' +
+              'Bir zum jimlik — bo‘shliq emas, u sizning so‘zingizga vazn beradi. ' +
+              'Keyingi suhbatda javob berishdan oldin bir nafas oling; o‘zingiz ham farqni sezasiz.',
+          },
         ],
         quiz: [
-          { q: 'Ishonchli odam suhbatда...', options: ['Tez va ko‘p gapiradi', 'Vazmin, pauza bilan gapiradi', 'Baqiradi', 'Jim qoladi'], correct: 1, explain: 'Vazminlik va pauza — ishonch belgisi.' },
+          {
+            q: 'Ishonchli odam odatda qanday gapiradi?',
+            options: ['Tez va to‘xtovsiz', 'Vazmin, o‘rinli pauzalar bilan', 'Imkon qadar baland', 'Umuman jim'],
+            correct: 1,
+            explain: 'Shoshmaslik “men shoshilmayapman, o‘zimga ishonaman” degani. Pauza — kuch belgisi.',
+          },
         ],
-        practice: { scenario: 'Do‘sting biror muammosini aytyapti. Uni shoshmasdan, vazmin tingla va javob ber.', goal: 'Shoshilmasdan, o‘ylab javob ber.', persona: 'Jasur' },
+        practice: {
+          scenario: 'Do‘stingiz muammosini hayajon bilan aytyapti. Uni bo‘lmasdan, vazmin tinglang va o‘ylab javob bering.',
+          goal: 'Shoshmang — avval tinglang, keyin javob bering.',
+          persona: 'Jasur',
+        },
       },
       {
-        title: 'Uni soxtalashtira olmaysan',
+        title: 'Uni soxtalashtirib bo‘lmaydi',
         reward: 20,
         concepts: [
-          { emoji: '💎', heading: 'Samimiylik hammasidan ustun', body: 'Odamlar soxtalikni sezadi. O‘zing bo‘l — bu eng jozibali holat. Kamchiliklaringni ham qabul qil.' },
+          {
+            emoji: '💎',
+            heading: 'Odamlar soxtalikni bir zumda sezadi',
+            body:
+              'Boshqa birov bo‘lishga urinsangiz, bu taranglik sifatida seziladi. ' +
+              'Aksincha, kichik kamchiliklaringiz bilan o‘zingiz bo‘lsangiz — bu yaqinlik uyg‘otadi. ' +
+              'Mukammal ko‘rinishga emas, samimiy bo‘lishga harakat qiling.',
+          },
         ],
         quiz: [
-          { q: 'Eng jozibali holat qaysi?', options: ['Boshqa birov bo‘lib ko‘rinish', 'O‘zing bo‘lish', 'Hammaga yoqishga urinish', 'Hech qachon xato qilmaslik'], correct: 1, explain: 'Samimiylik — haqiqiy jozibaning asosi.' },
+          {
+            q: 'Qaysi holat ko‘proq jozibador?',
+            options: ['Hammaga yoqishga urinish', 'Tabiiy, o‘zingiz bo‘lish', 'Hech qachon xato qilmaslik', 'Doim rozi bo‘lish'],
+            correct: 1,
+            explain: 'Haqiqiylik — eng kam uchraydigan, shuning uchun eng jozibali sifat.',
+          },
         ],
-        practice: { scenario: 'Yangi tanishing seni maqtadi. Samimiy va tabiiy javob ber.', goal: 'Maqtovni tabiiy qabul qil.', persona: 'Dilnoza' },
+        practice: {
+          scenario: 'Yangi tanishingiz sizni maqtadi. Uni tabiiy, hech mubolag‘asiz qabul qiling.',
+          goal: 'Maqtovni kamtarona, ammo dadil qabul qiling.',
+          persona: 'Dilnoza',
+        },
       },
       {
-        title: 'Xonadan hech narsa kutma',
+        title: 'Xonadan hech narsa kutmang',
         reward: 25,
         concepts: [
-          { emoji: '🎁', heading: 'Berish holati', body: 'Suhbatga “nima olaman” emas, “nima bera olaman” fikri bilan kir. Bu bosim va tashvishni yo‘qotadi.' },
+          {
+            emoji: '🎁',
+            heading: '“Nima olaman” emas, “nima beraman”',
+            body:
+              'Suhbatga “meni yoqtirishsinmi?” degan tashvish bilan kirsangiz, har bir gap imtihonga aylanadi. ' +
+              'Fikringizni o‘zgartiring: “men bu odamga nima yaxshilik bera olaman?” — kulgimi, e’tibormi, foydali fikr. ' +
+              'Shu ondayoq bosim yo‘qoladi va siz erkinroq bo‘lasiz.',
+          },
         ],
         quiz: [
-          { q: 'Suhbatga qanday kirish kerak?', options: ['Nimadir olish niyatida', 'Berish/ulashish holatida', 'Hech narsa o‘ylamay', 'Qo‘rquv bilan'], correct: 1, explain: 'Berish holati bosimni yo‘qotadi.' },
+          {
+            q: 'Suhbatga qanday niyat bilan kirish yengil qiladi?',
+            options: ['Tasdiq izlab', 'Berish/ulashish niyatida', 'Hech narsa o‘ylamay', 'Hukmdan qo‘rqib'],
+            correct: 1,
+            explain: 'Berish holati e’tiborni o‘zingizdan olib, tabiiylik va xotirjamlik beradi.',
+          },
         ],
-        practice: { scenario: 'Tadbirda notanish odamga o‘zingdan foydali biror narsa ulash.', goal: 'Suhbatdoshga qiymat ber.', persona: 'Aziz' },
+        practice: {
+          scenario: 'Tadbirda notanish odamga o‘zingizdan foydali bir narsa (tavsiya, fikr, yordam) ulashing.',
+          goal: 'Suhbatdoshga aniq bir qiymat bering.',
+          persona: 'Aziz',
+        },
       },
     ],
   },
@@ -65,37 +135,72 @@ export const COURSES = [
     color: '#4a90e2',
     lessons: [
       {
-        title: 'Suhbatni qanday boshlash',
+        title: 'Suhbatni boshlash',
         reward: 20,
         concepts: [
-          { emoji: '👋', heading: 'Oddiy boshlanish yetarli', body: '“Salom” + atrofdagi biror narsaga izoh yoki savol. Mukammal jumla shart emas — tabiiylik muhim.' },
+          {
+            emoji: '👋',
+            heading: 'Mukammal jumla shart emas',
+            body:
+              'Ko‘pchilik “nima desam eng zo‘r bo‘ladi?” deb o‘ylab, natijada hech nima demaydi. ' +
+              'Aslida oddiy salom va atrofdagi biror narsaga izoh yetarli: “Bu yer ancha gavjum ekan-a?”. ' +
+              'Boshlanish mazmuni emas, boshlash jasorati muhim.',
+          },
         ],
         quiz: [
-          { q: 'Suhbatni boshlashning eng oson yo‘li?', options: ['Mukammal jumla o‘ylab topish', 'Salom + oddiy savol', 'Kutish', 'Hech narsa demaslik'], correct: 1, explain: 'Oddiy salom va savol yetarli.' },
+          {
+            q: 'Suhbatni boshlashning eng oson yo‘li?',
+            options: ['Aqlli jumla o‘ylab topish', 'Oddiy salom + kichik izoh yoki savol', 'Kimdir boshlashini kutish', 'Jim turaverish'],
+            correct: 1,
+            explain: 'Eng yaxshi ochilishlar oddiy. Muhimi — birinchi qadamni o‘zingiz tashlash.',
+          },
         ],
-        practice: { scenario: 'Kutubxonada yoningda o‘tirgan odam bilan suhbat boshla.', goal: 'Tabiiy salom va savol bilan boshla.', persona: 'Malika' },
+        practice: { scenario: 'Kutubxonada yoningizda o‘tirgan odam bilan suhbat boshlang.', goal: 'Tabiiy salom va yengil savol bilan boshlang.', persona: 'Malika' },
       },
       {
-        title: 'Ravon davom ettirish',
+        title: 'Suhbatni ravon davom ettirish',
         reward: 20,
         concepts: [
-          { emoji: '🔄', heading: 'Ilib olish texnikasi', body: 'Suhbatdoshning gapidagi biror detalni “ilib ol” va shu haqda savol ber. Suhbat tabiiy davom etadi.' },
+          {
+            emoji: '🪝',
+            heading: '“Ilib olish” usuli',
+            body:
+              'Suhbat to‘xtab qolganda aybdor — quruq javoblar. Yechim oddiy: suhbatdoshning gapidan bitta detalni ilib oling. ' +
+              '“Dam olishga borgandim” desa — “Qayerga? Nimasi yoqdi?” Har javobda keyingi savol uchun ip yashiringan.',
+          },
         ],
         quiz: [
-          { q: 'Suhbat to‘xtab qolmasligi uchun?', options: ['Mavzuni keskin o‘zgartirish', 'Gapidagi detalni ilib, savol berish', 'Jim qolish', 'Faqat “ha” deyish'], correct: 1, explain: 'Detalni ilib olish suhbatni ravon qiladi.' },
+          {
+            q: 'Suhbat to‘xtab qolmasligi uchun nima qilasiz?',
+            options: ['Mavzuni keskin o‘zgartirasiz', 'Gapidagi detalni ilib, savol berasiz', 'Jim qolasiz', 'Faqat “ha-ha” deysiz'],
+            correct: 1,
+            explain: 'Detalni ilib olish suhbatni tabiiy va bosimsiz davom ettiradi.',
+          },
         ],
-        practice: { scenario: 'Suhbatdoshing dam olishga borganини aytdi. Shu haqda chuqurroq savol ber.', goal: 'Uning gapidan detal ilib, savol ber.', persona: 'Bekzod' },
+        practice: { scenario: 'Suhbatdoshingiz yaqinda sayohatga borganini aytdi. Shu haqda chuqurroq so‘rang.', goal: 'Uning gapidan detal ilib, savol bering.', persona: 'Bekzod' },
       },
       {
         title: 'Chiroyli yakunlash',
         reward: 20,
         concepts: [
-          { emoji: '🤝', heading: 'Ijobiy tugatish', body: 'Suhbatni iliq nota bilan yakunla: “Sen bilan gaplashish yoqimli ekan” + keyingi qadam (aloqa almashish).' },
+          {
+            emoji: '🤝',
+            heading: 'Oxirgi taassurot ham muhim',
+            body:
+              'Suhbatni noqulay “xo‘p, mayli...” bilan emas, iliq nota bilan yakunlang: ' +
+              '“Siz bilan gaplashish yoqimli ekan, keyin ham davom ettiramiz” + aloqa almashish. ' +
+              'Shunda odam siz bilan uchrashuvni yaxshi xotira sifatida saqlaydi.',
+          },
         ],
         quiz: [
-          { q: 'Suhbatni qanday yakunlash yaxshi?', options: ['To‘satdan ketib qolish', 'Iliq so‘z + aloqa almashish', 'Hech narsa demay', 'Uzr so‘rab'], correct: 1, explain: 'Iliq yakun taassurotni mustahkamlaydi.' },
+          {
+            q: 'Suhbatni qanday yakunlash yaxshi taassurot qoldiradi?',
+            options: ['To‘satdan ketib qolish', 'Iliq so‘z + aloqa almashish', 'Hech nima demay ketish', 'Uzr so‘rab qochish'],
+            correct: 1,
+            explain: 'Iliq yakun — keyingi uchrashuvga ochilgan eshik.',
+          },
         ],
-        practice: { scenario: 'Yoqimli suhbatni yakunlab, aloqa almashmoqchisan.', goal: 'Iliq yakunla va aloqa taklif qil.', persona: 'Nigora' },
+        practice: { scenario: 'Yoqimli suhbat tugadi, aloqa almashmoqchisiz.', goal: 'Iliq yakunlang va aloqa taklif qiling.', persona: 'Nigora' },
       },
     ],
   },
@@ -111,34 +216,69 @@ export const COURSES = [
         title: 'Ichki muvozanat',
         reward: 20,
         concepts: [
-          { emoji: '⚖️', heading: 'Natijaga bog‘lanma', body: 'Natijaga ortiqcha bog‘lanish tashvish tug‘diradi. Suhbatdan zavq ol — bosim tushadi, tabiiy bo‘lasan.' },
+          {
+            emoji: '⚖️',
+            heading: 'Natijaga yopishmang',
+            body:
+              '“U meni yoqtirsa-yu...” degan o‘y har bir so‘zingizni og‘irlashtiradi. ' +
+              'Diqqatni natijadan jarayonga ko‘chiring: shunchaki suhbatdan zavq oling. ' +
+              'Ajablanarlisi — aynan shunda siz tabiiy va jozibali bo‘lasiz.',
+          },
         ],
         quiz: [
-          { q: 'Tanishuvда tashvishni nima kamaytiradi?', options: ['Natijaга bog‘lanmaslik', 'Ko‘proq o‘ylash', 'Rejalar tuzish', 'Qochish'], correct: 0, explain: 'Jarayondan zavq olish bosimni kamaytiradi.' },
+          {
+            q: 'Tanishuvdagi tashvishni nima kamaytiradi?',
+            options: ['Natijaga yopishmaslik', 'Ko‘proq rejalab olish', 'Har so‘zni o‘lchash', 'Umuman gapirmaslik'],
+            correct: 0,
+            explain: 'Jarayondan zavq olsangiz, bosim tushadi va o‘zingiz bo‘lasiz.',
+          },
         ],
-        practice: { scenario: 'Yoqtirgan odaming bilan birinchi suhbat. Tabiiy va bosimsiz gaplash.', goal: 'Zavq bilan, bosimsiz suhbatlash.', persona: 'Sevara' },
+        practice: { scenario: 'Yoqtirgan insoningiz bilan birinchi suhbat. Bosimsiz, zavq bilan gaplashing.', goal: 'Natija haqida emas, suhbat haqida o‘ylang.', persona: 'Sevara' },
       },
       {
-        title: 'Qiziqish bildirish',
+        title: 'Chin qiziqish bildirish',
         reward: 20,
         concepts: [
-          { emoji: '👀', heading: 'Samimiy e’tibor', body: 'Chin qiziqish — eng kuchli jozibador xususiyat. Savol ber, ismini eslab qol, gaplarini eshit.' },
+          {
+            emoji: '👀',
+            heading: 'E’tibor — eng kuchli joziba',
+            body:
+              'Odamlar o‘zini ko‘rsatishga uringanlarni emas, o‘zlarini chin dildan tinglaganlarni yoqtiradi. ' +
+              'Ismini eslang, gapiga qiziqing, tafsilotini so‘rang. Bu — hech qanday “texnika”dan kuchliroq.',
+          },
         ],
         quiz: [
-          { q: 'Jozibaning kuchli belgisi?', options: ['Befarqlik', 'Samimiy qiziqish', 'Maqtanish', 'Sovuqqonlik'], correct: 1, explain: 'Samimiy qiziqish o‘ziga tortadi.' },
+          {
+            q: 'Nima ko‘proq jozibador?',
+            options: ['O‘zini maqtash', 'Suhbatdoshga chin qiziqish', 'Befarq ko‘rinish', 'Sovuqqonlik'],
+            correct: 1,
+            explain: 'Chin qiziqish odamni qadrlanayotgandek his qildiradi — bu esa o‘ziga tortadi.',
+          },
         ],
-        practice: { scenario: 'Yoqtirgan odaming hobbisi haqida gapirdi. Chin qiziqish bildir.', goal: 'Samimiy qiziqish va savollar bilan davom et.', persona: 'Sevara' },
+        practice: { scenario: 'Yoqtirgan insoningiz hobbisi haqida gapirdi. Chin qiziqish bilan davom eting.', goal: 'Samimiy savollar bilan chuqurlashtiring.', persona: 'Sevara' },
       },
       {
         title: 'Chegara va hurmat',
         reward: 20,
         concepts: [
-          { emoji: '🛡', heading: 'O‘zingga va unga hurmat', body: 'Sog‘lom munosabat hurmatdan boshlanadi. “Yo‘q” ni qabul qil, o‘z chegarangni ham bil.' },
+          {
+            emoji: '🛡',
+            heading: 'Hurmat — sog‘lom yaqinlikning asosi',
+            body:
+              'Sog‘lom munosabat bosim bilan emas, hurmat bilan quriladi. ' +
+              '“Yo‘q”ni bosiqlik bilan qabul qiling, o‘z chegarangizni ham bilib turing. ' +
+              'Bu zaiflik emas — aksincha, kuchli va ishonchli odam belgisi.',
+          },
         ],
         quiz: [
-          { q: 'Sog‘lom munosabat asosi?', options: ['Bosim', 'O‘zaro hurmat va chegara', 'Doim rozi bo‘lish', 'Manipulyatsiya'], correct: 1, explain: 'Hurmat va chegara — asos.' },
+          {
+            q: 'Sog‘lom munosabatning asosi nima?',
+            options: ['Bosim o‘tkazish', 'O‘zaro hurmat va chegara', 'Doim rozi bo‘lish', 'Manipulyatsiya'],
+            correct: 1,
+            explain: 'Hurmat va aniq chegara ikkala tomonga ham xotirjamlik beradi.',
+          },
         ],
-        practice: { scenario: 'Suhbatdoshing taklifingni rad etdi. Hurmat bilan javob ber.', goal: 'Rad javobini hurmat bilan qabul qil.', persona: 'Sevara' },
+        practice: { scenario: 'Taklifingiz rad etildi. Buni hurmat bilan qabul qiling.', goal: 'Rad javobini bosiqlik bilan qabul qiling.', persona: 'Sevara' },
       },
     ],
   },
@@ -146,42 +286,78 @@ export const COURSES = [
   {
     id: 'friends',
     category: 'Do‘st orttirish',
-    title: 'O‘z odamlaringni topish',
+    title: 'O‘z odamlaringizni topish',
     icon: 'people',
     color: '#a06bff',
     lessons: [
       {
-        title: 'Birinchi qadam sendan',
+        title: 'Birinchi qadam sizdan',
         reward: 20,
         concepts: [
-          { emoji: '🚀', heading: 'Tashabbus ko‘rsat', body: 'Do‘stlik ko‘pincha bir kishining tashabbusidan boshlanadi. Birinchi bo‘lib yozishdan yoki taklif qilishdan qo‘rqma.' },
+          {
+            emoji: '🚀',
+            heading: 'Ko‘pchilik taklifni kutib o‘tiradi',
+            body:
+              'Hamma “meni chaqirishsa borardim” deb o‘ylaydi — shuning uchun hech kim chaqirmaydi. ' +
+              'Do‘stlik odatda bitta odamning jur’atidan boshlanadi. Birinchi bo‘lib yozing yoki kofega taklif qiling — ' +
+              'ko‘pchilik bundan xursand bo‘ladi.',
+          },
         ],
         quiz: [
-          { q: 'Yangi do‘stlik qanday boshlanadi?', options: ['O‘z-o‘zidan', 'Kimningdir tashabbusidan', 'Tasodifan', 'Hech qachon'], correct: 1, explain: 'Tashabbus muhim — birinchi qadamni tashla.' },
+          {
+            q: 'Yangi do‘stlik ko‘pincha qanday boshlanadi?',
+            options: ['O‘z-o‘zidan', 'Kimningdir jur’atli birinchi qadamidan', 'Tasodifan', 'Hech qachon'],
+            correct: 1,
+            explain: 'Tashabbus — do‘stlikning kaliti. Kutmang, taklif qiling.',
+          },
         ],
-        practice: { scenario: 'Kursda tanish yigit/qizni kofega taklif qilmoqchisan.', goal: 'Tabiiy taklif qil.', persona: 'Sardor' },
+        practice: { scenario: 'Kursdagi tanishingizni kofega taklif qilmoqchisiz.', goal: 'Tabiiy va bosimsiz taklif qiling.', persona: 'Sardor' },
       },
       {
-        title: 'Umumiylik topish',
+        title: 'Umumiylikni topish',
         reward: 20,
         concepts: [
-          { emoji: '🔗', heading: 'Umumiy nuqta', body: 'Do‘stlik umumiy qiziqishlardan o‘sadi. Suhbatда umumiylik izla — sport, kino, sayohat.' },
+          {
+            emoji: '🔗',
+            heading: 'Yaqinlik umumiylikdan o‘sadi',
+            body:
+              'Do‘stlik “bir xil narsani yoqtiramiz” degan tuyg‘udan kuchayadi. ' +
+              'Suhbatda umumiy nuqta izlang — sport, kino, sayohat, ish. Topilgan har bir umumiylik ' +
+              'ikkovingiz orasida ko‘prik bo‘ladi.',
+          },
         ],
         quiz: [
-          { q: 'Do‘stlik nimadan o‘sadi?', options: ['Umumiy qiziqishlardan', 'Majburiyatdan', 'Tasodifdan', 'Sukutdan'], correct: 0, explain: 'Umumiy qiziqish yaqinlashtiradi.' },
+          {
+            q: 'Do‘stlik nimadan kuchayadi?',
+            options: ['Umumiy qiziqishlardan', 'Majburiyatdan', 'Tasodifdan', 'Sukutdan'],
+            correct: 0,
+            explain: 'Umumiy nuqta — yaqinlashuvning tabiiy sababi.',
+          },
         ],
-        practice: { scenario: 'Yangi tanishing bilan umumiy qiziqish izlab suhbatlash.', goal: 'Umumiy mavzu top.', persona: 'Sardor' },
+        practice: { scenario: 'Yangi tanishingiz bilan umumiy qiziqish izlab suhbatlashing.', goal: 'Kamida bitta umumiy mavzu toping.', persona: 'Sardor' },
       },
       {
         title: 'Aloqani saqlash',
         reward: 20,
         concepts: [
-          { emoji: '📞', heading: 'Muntazamlik', body: 'Do‘stlik e’tibor bilan yashaydi. Vaqti-vaqti bilan xabar yoz, holidan xabar ol.' },
+          {
+            emoji: '📞',
+            heading: 'Do‘stlik e’tibor bilan yashaydi',
+            body:
+              'Eng yaxshi do‘stliklar ham e’tiborsizlikdan so‘nadi. ' +
+              'Katta narsa shart emas: vaqti-vaqti bilan “Qalaysan?” deb yozing, biror qiziq narsani ulashing. ' +
+              'Kichik, muntazam e’tibor — uzoq do‘stlikning siri.',
+          },
         ],
         quiz: [
-          { q: 'Do‘stlikni nima saqlaydi?', options: ['Muntazam e’tibor', 'Unutish', 'Faqat bayramlarda eslash', 'Kutish'], correct: 0, explain: 'Muntazam e’tibor aloqani saqlaydi.' },
+          {
+            q: 'Do‘stlikni nima tirik saqlaydi?',
+            options: ['Muntazam kichik e’tibor', 'Unutib yuborish', 'Faqat bayramda eslash', 'Kutish'],
+            correct: 0,
+            explain: 'Doimiy kichik aloqa katta muhabbatdan ko‘ra ishonchliroq.',
+          },
         ],
-        practice: { scenario: 'Ancha yozishmagan do‘stingga xabar yozmoqchisan.', goal: 'Iliq va tabiiy xabar boshla.', persona: 'Sardor' },
+        practice: { scenario: 'Ancha yozishmagan do‘stingizga xabar yozmoqchisiz.', goal: 'Iliq va tabiiy tarzda suhbatni qayta boshlang.', persona: 'Sardor' },
       },
     ],
   },
@@ -197,34 +373,70 @@ export const COURSES = [
         title: 'Yig‘ilishda gapirish',
         reward: 20,
         concepts: [
-          { emoji: '🗣', heading: 'Fikringni ayt', body: 'Yig‘ilishда jim o‘tirma. Qisqa, aniq fikr bildirish — professional ishonch belgisi.' },
+          {
+            emoji: '🗣',
+            heading: 'Jim o‘tirish ham xabar beradi',
+            body:
+              'Yig‘ilishda indamay o‘tirsangiz, g‘oyangiz ham ko‘rinmaydi. ' +
+              'Mukammal nutq shart emas — qisqa, aniq bitta fikr bildirish yetarli: ' +
+              '“Menimcha, avval mijozdan so‘rasak yaxshi bo‘ladi”. Aniqlik — ishonch belgisi.',
+          },
         ],
         quiz: [
-          { q: 'Yig‘ilishda qanday gapirish yaxshi?', options: ['Uzoq va murakkab', 'Qisqa va aniq', 'Umuman gapirmaslik', 'Boshqalarni bo‘lish'], correct: 1, explain: 'Qisqa va aniqlik — ta’sirli.' },
+          {
+            q: 'Yig‘ilishda qanday gapirish ta’sirli?',
+            options: ['Uzoq va murakkab', 'Qisqa va aniq', 'Umuman gapirmaslik', 'Boshqalarni bo‘lish'],
+            correct: 1,
+            explain: 'Qisqa va aniq fikr eshitiladi va hurmat uyg‘otadi.',
+          },
         ],
-        practice: { scenario: 'Jamoaviy yig‘ilishда g‘oyangni taqdim qilyapsan.', goal: 'G‘oyani qisqa va aniq ayt.', persona: 'Rahbar' },
+        practice: { scenario: 'Jamoaviy yig‘ilishda g‘oyangizni taqdim qilyapsiz.', goal: 'Fikringizni qisqa va aniq ayting.', persona: 'Rahbar' },
       },
       {
         title: 'Ish suhbati (intervyu)',
         reward: 25,
         concepts: [
-          { emoji: '💼', heading: 'STAR usuli', body: 'Yutuqlaringni STAR bilan ayt: Vaziyat – Vazifa – Harakat – Natija. Aniq misol — kuchli taassurot.' },
+          {
+            emoji: '💼',
+            heading: 'Hikoya raqamlardan yaxshi eslanadi',
+            body:
+              '“Mas’uliyatli va tirishqoqman” — buni hamma aytadi, hech kim eslamaydi. ' +
+              'Buning o‘rniga kichik hikoya ayting: qanday vaziyat edi, siz nima qildingiz, natija qanday bo‘ldi. ' +
+              'Aniq misol sizni yodda qoldiradi.',
+          },
         ],
         quiz: [
-          { q: 'Intervyuда tajribani qanday aytish yaxshi?', options: ['Umumiy gaplar bilan', 'STAR (aniq misol) bilan', 'Maqtanib', 'Qisqa “ha/yo‘q”'], correct: 1, explain: 'STAR — aniq va ishonarli.' },
+          {
+            q: 'Intervyuda tajribani qanday aytish kuchli?',
+            options: ['Umumiy sifatlar sanab', 'Aniq misol/hikoya bilan', 'Kamtarlik uchun jim', 'Faqat “ha/yo‘q”'],
+            correct: 1,
+            explain: 'Vaziyat → harakat → natija ko‘rinishidagi hikoya ishonarli va esda qoladi.',
+          },
         ],
-        practice: { scenario: 'Ish suhbatidasan. “O‘zingiz haqingizda gapiring” deyishdi.', goal: 'Qisqa, ishonchli o‘zini tanishtir.', persona: 'HR menejer' },
+        practice: { scenario: 'Ish suhbatidasiz. “O‘zingiz haqingizda gapiring” deyishdi.', goal: 'Qisqa, ishonchli va misolli tanishtiring.', persona: 'HR menejer' },
       },
       {
-        title: 'Konfliktni hal qilish',
+        title: 'Kelishmovchilikni hal qilish',
         reward: 20,
         concepts: [
-          { emoji: '🕊', heading: 'Muammoga qarshi, odamга emas', body: 'Kelishmovchilikда shaxsga emas, muammoga qarat. “Men” tilida gapir: “Menimcha...”, “Men shunday his qildim...”.' },
+          {
+            emoji: '🕊',
+            heading: 'Odamga emas, muammoga qarshi turing',
+            body:
+              'Nizoda “sen doim shunaqasan” desangiz, suhbat urushga aylanadi. ' +
+              '“Men” tilida gapiring: “Men bu vaziyatda biroz noqulaylik sezdim”. ' +
+              'Shunda suhbatdosh himoyaga o‘tmaydi va yechim topish osonlashadi.',
+          },
         ],
         quiz: [
-          { q: 'Konfliktда qanday gapirish kerak?', options: ['Ayblab', '“Men” tilida, muammoga qarab', 'Baqirib', 'Jim qolib'], correct: 1, explain: '“Men” tili keskinlikni kamaytiradi.' },
+          {
+            q: 'Kelishmovchilikda qanday gapirish keskinlikni kamaytiradi?',
+            options: ['Ayblab', '“Men” tilida, muammoga qarab', 'Baqirib', 'Jim qolib'],
+            correct: 1,
+            explain: '“Men” tili suhbatdoshni himoyaga o‘tkazmaydi — bu tinch yechimga yo‘l ochadi.',
+          },
         ],
-        practice: { scenario: 'Hamkasbing bilan kelishmovchilik chiqdi. Xotirjam hal qilmoqchisan.', goal: '“Men” tilida, hurmat bilan gaplash.', persona: 'Hamkasb' },
+        practice: { scenario: 'Hamkasbingiz bilan kelishmovchilik chiqdi. Uni xotirjam hal qilmoqchisiz.', goal: '“Men” tilida, hurmat bilan gaplashing.', persona: 'Hamkasb' },
       },
     ],
   },
@@ -260,9 +472,9 @@ export function getCourse(id) {
 // Onboarding javoblariga qarab boshlang'ich kursni tanlash
 export function pickCourseId(profile) {
   const goals = profile?.goals || []
-  if (goals.some((g) => g.includes('Muhabbat'))) return 'dating'
-  if (goals.some((g) => g.includes('Karьera') || g.includes('Karyera'))) return 'work'
-  if (goals.some((g) => g.includes('bog‘lanish') || g.includes('boglanish'))) return 'friends'
-  if (goals.some((g) => g.includes('ishonchli'))) return 'charisma'
+  if (goals.some((g) => g.includes('Munosabat'))) return 'dating'
+  if (goals.some((g) => g.includes('Karyera') || g.includes('Karyera'))) return 'work'
+  if (goals.some((g) => g.includes('tanishish'))) return 'friends'
+  if (goals.some((g) => g.includes('ishonch'))) return 'charisma'
   return 'convo'
 }

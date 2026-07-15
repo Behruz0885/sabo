@@ -333,21 +333,76 @@ function GraphStep() {
   )
 }
 
+// Ismdan kichik, barqaror "jitter" — bir xil javoblarda ham ozgina farq bo'lsin
+function jitter(seed, mod) {
+  let h = 0
+  for (const ch of String(seed || 'sabo')) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return (h % mod) - Math.floor(mod / 2)
+}
+
 function computeScore(answers) {
-  const sliders = ['recharge', 'strangers', 'attractive'].map((k) => answers[k] ?? 5)
-  const avg = sliders.reduce((a, b) => a + b, 0) / sliders.length
-  const base = Math.round(35 + avg * 3) // ~ 40-65
+  const clamp = (n) => Math.max(26, Math.min(90, Math.round(n)))
+  const strangers = answers.strangers ?? 5 // 0-10
+  const meet = answers.meet
+  const goals = answers.goals || []
+  const better = answers.better || []
+  const sp = answers.superpower
+  const name = answers.name || ''
+
+  const meetBonus = meet === 'Juda ishonchli' ? 20 : meet === 'Qisman ishonchli' ? 7 : meet ? -6 : 0
+  const base = 42 + strangers * 2.0 + meetBonus // ~ 26-84
+
+  // "better" — yaxshilamoqchi bo'lgan soha = hozircha kuchsizroq (o'sish uchun joy)
+  const wantsStart = better.includes('Suhbatni boshlash')
+  const wantsClear = better.includes('Fikrni aniq ifodalash')
+  const wantsCues = better.includes('Ijtimoiy signallarni o‘qish')
+  const wantsStory = better.includes('Qiziqarli hikoya qilish')
+  const goalDating = goals.some((g) => g.includes('Munosabat'))
+  const goalMeet = goals.some((g) => g.includes('tanishish'))
+  const goalConf = goals.some((g) => g.includes('ishonch'))
+
+  const confidence = clamp(
+    base + (sp === 'Hozirlik' ? 9 : 0) + (goalConf ? -4 : 3) - (wantsClear ? 7 : 0) + jitter(name + 'c', 7)
+  )
+  const sociability = clamp(
+    base + (goalMeet ? 8 : 0) + (sp === 'Iliqlik' || sp === 'Hazil' ? 7 : 0) - (wantsStart ? 8 : 2) + jitter(name + 's', 9)
+  )
+  const flirting = clamp(
+    38 + strangers * 2.2 + (goalDating ? 14 : -2) + (sp === 'Hazil' ? 9 : 0) + meetBonus * 0.4 + jitter(name + 'f', 9)
+  )
+  const charisma = clamp(
+    base + (sp === 'Hazil' || sp === 'Iliqlik' ? 8 : 3) - (wantsStory ? 7 : 0) - (wantsCues ? 4 : 0) + jitter(name + 'k', 7)
+  )
+  const overall = Math.round((confidence + sociability + flirting + charisma) / 4)
+  return { overall, confidence, sociability, flirting, charisma }
+}
+
+// Ball darajasiga qarab unvon va tavsif
+function scoreProfile(overall) {
+  if (overall < 45)
+    return {
+      title: 'Siz — Yangi Ovozsiz',
+      desc: 'Ijtimoiy ishonchingiz endigina uyg‘onmoqda. Kichik, muntazam mashqlar sizni tez orada xotirjamroq va dadilroq qiladi.',
+    }
+  if (overall < 60)
+    return {
+      title: 'Siz — O‘sayotgan Ovozsiz',
+      desc: 'Poydevoringiz bor — endi uni sayqallash vaqti. Bir necha kalit odat bilan suhbatlaringiz sezilarli darajada tabiiyroq bo‘ladi.',
+    }
+  if (overall < 75)
+    return {
+      title: 'Siz — Ishonchli Ovozsiz',
+      desc: 'Ko‘p vaziyatda o‘zingizni erkin his qilasiz. Endi maqsad — nozik jihatlarni charxlab, ta’sirdoirangizni kengaytirish.',
+    }
   return {
-    overall: Math.min(72, Math.max(42, base)),
-    confidence: Math.min(70, base),
-    sociability: Math.min(70, base + 1),
-    flirting: Math.min(70, base + 1),
-    charisma: Math.min(70, base),
+    title: 'Siz — Karizmatik Ovozsiz',
+    desc: 'Tabiiy jozibangiz bor. Sabo sizga uni izchil, har qanday vaziyatda ishlaydigan mahoratga aylantirishga yordam beradi.',
   }
 }
 
 function ScoreStep({ answers }) {
   const s = computeScore(answers)
+  const p = scoreProfile(s.overall)
   const bars = [
     { label: 'Ishonch', v: s.confidence, color: '#4a90e2' },
     { label: 'Ijtimoiylik', v: s.sociability, color: '#a06bff' },
@@ -376,11 +431,8 @@ function ScoreStep({ answers }) {
             </div>
           ))}
         </div>
-        <h2 className="score__title">Siz — Yangi Ovozsiz</h2>
-        <p className="score__desc">
-          Ijtimoiy ishonchingiz hali shakllanmoqda. To‘g‘ri mashq sizni xotirjamroq,
-          aniqroq va o‘z o‘rningizni egallashda qulayroq his qildiradi.
-        </p>
+        <h2 className="score__title">{p.title}</h2>
+        <p className="score__desc">{p.desc}</p>
       </div>
     </div>
   )
