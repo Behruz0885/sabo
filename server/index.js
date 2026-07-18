@@ -98,6 +98,51 @@ app.post('/api/admin/user', adminAuth, (req, res) => {
   res.json({ ok: true })
 })
 
+/* ---- Admin: bitta foydalanuvchini AI orqali tahlil qilish ---- */
+app.post('/api/admin/analyze', adminAuth, async (req, res) => {
+  const u = req.body?.user
+  if (!u?.id) return res.status(400).json({ error: 'user kerak' })
+
+  const now = Date.now()
+  const daysJoin = u.joined ? Math.floor((now - u.joined) / 86400000) : null
+  const daysSeen = u.lastSeen ? Math.floor((now - u.lastSeen) / 86400000) : null
+  const info = {
+    ism: `${u.first_name || ''} ${u.last_name || ''}`.trim() || '—',
+    username: u.username || '—',
+    til: u.language_code || '—',
+    xp: u.xp || 0,
+    streak: u.streak || 0,
+    tugatilgan_darslar: u.progress || 0,
+    qoshilganiga_kun: daysJoin,
+    oxirgi_faollik_kun_oldin: daysSeen,
+    bloklangan: Boolean(u.blocked),
+  }
+
+  const system = {
+    role: 'system',
+    content:
+      `Sen — Sabo ilovasining admin-analitik yordamchisisan. Sabo bu AI muloqot va soft-skills o‘rgatuvchi ilova. ` +
+      `Senga bitta foydalanuvchi ma’lumotlari beriladi. Uni tahlil qilib, FAQAT O‘ZBEK TILIDA, ` +
+      `qisqa va aniq xulosa ber. Quyidagi bo‘limlarда yoz:\n` +
+      `📊 Umumiy holat — foydalanuvchi qanchalik faol va jalb qilingan.\n` +
+      `⚠️ Xavf — ketib qolish (churn) ehtimoli qanchalik va nega.\n` +
+      `✅ Tavsiyalar — 2-3 ta aniq harakat (masalan eslatma yuborish, qaysi kurs taklif qilish).\n` +
+      `Ortiqcha kirish so‘zlarsiz, to‘g‘ridan-to‘g‘ri va foydali bo‘l.`,
+  }
+  const userMsg = {
+    role: 'user',
+    content: `Foydalanuvchi ma’lumotlari:\n${JSON.stringify(info, null, 2)}`,
+  }
+
+  try {
+    const analysis = await chat([system, userMsg], { temperature: 0.5 })
+    res.json({ analysis })
+  } catch (e) {
+    console.error('analyze xatosi:', e.message)
+    res.status(502).json({ error: 'AI tahlil qila olmadi' })
+  }
+})
+
 /* ---- Admin: ommaviy xabar (broadcast+) ---- */
 const isActiveUser = (u) => Date.now() - (u.lastSeen || 0) < 7 * 86400000
 

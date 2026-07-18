@@ -49,6 +49,16 @@ export async function fetchHealth() {
   }
 }
 
+export async function adminAnalyzeUser(key, user) {
+  const res = await fetch(`${API}/api/admin/analyze`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key },
+    body: JSON.stringify({ user }),
+  })
+  if (!res.ok) throw new Error('AI tahlil olinmadi')
+  return (await res.json()).analysis
+}
+
 export async function fetchBroadcasts(key) {
   const res = await fetch(`${API}/api/admin/broadcasts`, { headers: { 'X-Admin-Key': key } })
   if (!res.ok) throw new Error('Tarix olinmadi')

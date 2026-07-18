@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { fetchUsers, adminBroadcast, adminUserAction, fetchBroadcasts, fetchHealth } from '../lib/users'
+import { fetchUsers, adminBroadcast, adminUserAction, fetchBroadcasts, fetchHealth, adminAnalyzeUser } from '../lib/users'
 import { SparkLogo, SearchIcon, CloseIcon } from './icons'
 
 const COUNTRY = {
@@ -286,14 +286,30 @@ export default function Admin() {
         </div>
       )}
 
-      {selected && <DetailModal u={selected} onClose={() => setSelected(null)} onAction={doAction} />}
+      {selected && <DetailModal u={selected} keyVal={keyRef.current} onClose={() => setSelected(null)} onAction={doAction} />}
       {bcast && <BroadcastModal keyVal={keyRef.current} onClose={() => setBcast(false)} />}
     </div>
   )
 }
 
 /* ---- Foydalanuvchi tafsiloti ---- */
-function DetailModal({ u, onClose, onAction }) {
+function DetailModal({ u, keyVal, onClose, onAction }) {
+  const [analysis, setAnalysis] = useState('')
+  const [analyzing, setAnalyzing] = useState(false)
+  const [aErr, setAErr] = useState('')
+
+  const analyze = async () => {
+    setAnalyzing(true)
+    setAErr('')
+    try {
+      setAnalysis(await adminAnalyzeUser(keyVal, u))
+    } catch (e) {
+      setAErr(e.message)
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
   const rows = [
     ['Telegram ID', u.id],
     ['Username', u.username ? `@${u.username}` : '—'],
@@ -322,6 +338,12 @@ function DetailModal({ u, onClose, onAction }) {
             <div className="modal__row" key={k}><span>{k}</span><b>{v}</b></div>
           ))}
         </div>
+        <button className="mbtn mbtn--ai" onClick={analyze} disabled={analyzing}>
+          {analyzing ? '🤖 Tahlil qilinmoqda...' : '🤖 AI tahlil qilsin'}
+        </button>
+        {aErr && <div className="modal__result err">{aErr}</div>}
+        {analysis && <div className="ai-analysis">{analysis}</div>}
+
         <div className="modal__actions">
           {u.blocked
             ? <button className="mbtn mbtn--ok" onClick={() => onAction(u.id, 'unblock')}>Blokdan chiqarish</button>

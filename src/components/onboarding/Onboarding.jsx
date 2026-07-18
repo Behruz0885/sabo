@@ -67,7 +67,7 @@ export default function Onboarding({ telegram, onFinish, onExit }) {
       </header>
 
       <div className="onb__body">
-        <StepView step={step} value={val} answers={answers} setAnswer={setAnswer} next={next} />
+        <StepView step={step} value={val} answers={answers} setAnswer={setAnswer} next={next} haptic={haptic} />
       </div>
 
       {showContinue && (
@@ -82,7 +82,7 @@ export default function Onboarding({ telegram, onFinish, onExit }) {
 }
 
 /* ============ Qadam turlari ============ */
-function StepView({ step, value, answers, setAnswer, next }) {
+function StepView({ step, value, answers, setAnswer, next, haptic }) {
   switch (step.type) {
     case 'text':
       return <TextStep step={step} value={value} setAnswer={setAnswer} />
@@ -105,7 +105,7 @@ function StepView({ step, value, answers, setAnswer, next }) {
     case 'score':
       return <ScoreStep answers={answers} />
     case 'commit':
-      return <CommitStep answers={answers} next={next} />
+      return <CommitStep answers={answers} next={next} haptic={haptic} />
     default:
       return null
   }
@@ -438,43 +438,84 @@ function ScoreStep({ answers }) {
   )
 }
 
-function CommitStep({ answers, next }) {
+function CommitStep({ answers, next, haptic }) {
   const name = answers.name || 'do‘stim'
-  const holdRef = useRef(null)
-  const [holding, setHolding] = useState(false)
+  const DURATION = 1500
+  const R = 52
+  const C = 2 * Math.PI * R
+  const [progress, setProgress] = useState(0)
+  const [done, setDone] = useState(false)
+  const raf = useRef(null)
+  const startT = useRef(0)
+  const lastHaptic = useRef(0)
 
+  useEffect(() => () => cancelAnimationFrame(raf.current), [])
+
+  const tick = (t) => {
+    if (!startT.current) startT.current = t
+    const p = Math.min(100, ((t - startT.current) / DURATION) * 100)
+    setProgress(p)
+    // yengil tebranish har ~25%
+    if (p - lastHaptic.current >= 25) { lastHaptic.current = p; haptic?.('light') }
+    if (p >= 100) {
+      setDone(true)
+      haptic?.('medium')
+      setTimeout(next, 700)
+      return
+    }
+    raf.current = requestAnimationFrame(tick)
+  }
   const start = () => {
-    setHolding(true)
-    holdRef.current = setTimeout(() => next(), 1300)
+    if (done) return
+    startT.current = 0
+    lastHaptic.current = 0
+    raf.current = requestAnimationFrame(tick)
   }
   const cancel = () => {
-    setHolding(false)
-    clearTimeout(holdRef.current)
+    if (done) return
+    cancelAnimationFrame(raf.current)
+    startT.current = 0
+    setProgress(0)
   }
 
   return (
     <div className="commit">
       <div className="commit__letter">
-        <h1>Salom! Bu — men</h1>
         <div className="commit__from">
           <span className="commit__avatar"><SparkLogo /></span>
-          <b>Kelajakdagi {name}</b>
+          <div>
+            <b>Kelajakdagi {name}</b>
+            <small>1 yildan keyin</small>
+          </div>
         </div>
-        <p>Bu — bir yildan kelayotgan o‘zingiz. Bugun o‘zingizni tortmaslikka qaror qildingiz va bu hammasini o‘zgartirdi!</p>
-        <p>Endi xonalarga xotirjamroq kirasiz, fikrlaringizga ishonasiz va to‘g‘ri so‘zlarni topasiz — chunki Saboga sodiq qoldingiz.</p>
-        <p>Kuniga bir necha daqiqa ajrating. Ishoning, arziydi.</p>
-        <div className="commit__sign">Ko‘rishguncha,<br /><b>Kelajakdagi {name}</b></div>
+        <h1>Salom, bu — men.</h1>
+        <p>Bir yildan kelyapman. Bugun — hammasi o‘zgargan kun. Siz o‘zingizni ortiq tortmaslikka qaror qildingiz.</p>
+        <p>Endi xonalarga xotirjam kiraman, fikrlarimga ishonaman va to‘g‘ri so‘zni topaman — chunki siz bugun boshladingiz.</p>
+        <p className="commit__ps">Kuniga bir necha daqiqa. Ishoning — arziydi. 🤍</p>
       </div>
+
       <button
-        className={`commit__hold ${holding ? 'commit__hold--on' : ''}`}
+        className={`commitfp ${progress > 0 ? 'is-active' : ''} ${done ? 'is-done' : ''}`}
         onPointerDown={start}
         onPointerUp={cancel}
         onPointerLeave={cancel}
+        aria-label="Bosib turing"
       >
-        <span className="commit__ring" />
-        <span className="commit__fp"><OptIcon name="fingerprint" /></span>
-        <em>Sodiqlikni tasdiqlash uchun bosib turing</em>
+        <svg className="commitfp__ring" viewBox="0 0 120 120">
+          <circle className="commitfp__track" cx="60" cy="60" r={R} />
+          <circle
+            className="commitfp__prog"
+            cx="60" cy="60" r={R}
+            style={{ strokeDasharray: C, strokeDashoffset: C * (1 - progress / 100) }}
+          />
+        </svg>
+        <span className="commitfp__icon">
+          {done ? <CheckMark /> : <OptIcon name="fingerprint" />}
+        </span>
       </button>
+      <em className="commitfp__hint">
+        {done ? 'Tasdiqlandi! 🎉' : progress > 0 ? 'Ushlab turing...' : 'Sodiqlikni tasdiqlash uchun bosib turing'}
+      </em>
     </div>
   )
 }
