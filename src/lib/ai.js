@@ -23,8 +23,8 @@ export async function getReply(history, practice) {
 }
 
 // AI murabbiy chati
-export async function getCoachReply(history) {
-  const { reply } = await callBackend('/api/chat', { history })
+export async function getCoachReply(history, context) {
+  const { reply } = await callBackend('/api/chat', { history, context })
   if (!reply) throw new Error('AI bo‘sh javob qaytardi')
   return reply
 }

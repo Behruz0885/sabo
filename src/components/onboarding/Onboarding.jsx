@@ -67,7 +67,9 @@ export default function Onboarding({ telegram, onFinish, onExit }) {
       </header>
 
       <div className="onb__body">
-        <StepView step={step} value={val} answers={answers} setAnswer={setAnswer} next={next} haptic={haptic} />
+        <div className="step-anim" key={index}>
+          <StepView step={step} value={val} answers={answers} setAnswer={setAnswer} next={next} haptic={haptic} />
+        </div>
       </div>
 
       {showContinue && (

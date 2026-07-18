@@ -2009,3 +2009,40 @@
   color: var(--text);
   white-space: pre-wrap;
 }
+
+/* ==== O'tish animatsiyalari ==== */
+@keyframes screenFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: none; } }
+
+/* Tab ekranlari — yumshoq fade-up */
+.home2, .lib, .ins, .you { animation: screenFade 0.3s ease both; }
+/* To'liq ekranli qatlamlar — o'ngdan sirg'alib kirish */
+.lesson, .aichat, .cdetail, .board, .settings2 { animation: slideInRight 0.3s ease both; }
+/* Dars bosqichlari va onboarding qadamlari orasidagi o'tish */
+.lphase, .step-anim { animation: screenFade 0.28s ease both; }
+
+/* Tab bosilganda kichik bosim effekti */
+.tab2:active { transform: scale(0.9); }
+.tabbar2__center:active { transform: scale(0.92) translateY(-18px); }
+.acard:active, .home2__next:active, .titem:active:not(:disabled) { transform: scale(0.97); }
+
+/* Reduced motion — animatsiyani o'chirish */
+@media (prefers-reduced-motion: reduce) {
+  .home2, .lib, .ins, .you, .lesson, .aichat, .cdetail, .board, .settings2, .lphase, .step-anim {
+    animation: none;
+  }
+}
+
+/* ==== AI home: shaxsiy tahlil tugmasi ==== */
+.assist__me {
+  margin-top: 14px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(160, 107, 255, 0.12);
+  border: 1px solid rgba(160, 107, 255, 0.5);
+  color: #c9b3ff;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.assist__me:active { transform: scale(0.98); }

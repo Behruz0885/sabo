@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { getCoachReply } from '../../lib/ai'
+import { COURSES, getCourse } from '../../data/content'
 import { CloseIcon, SendIcon, SparkLogo } from '../icons'
 import OptIcon from '../onboarding/OptIcon'
 
@@ -17,13 +18,34 @@ function greeting() {
   return 'Xayrli kech'
 }
 
-export default function AiChat({ telegram, onClose }) {
+export default function AiChat({ telegram, state, onClose }) {
   const { haptic, user } = telegram
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const scrollRef = useRef(null)
   const started = messages.length > 0
+
+  // AI foydalanuvchining o'z hisob ma'lumotlarini ko'ra olishi uchun kontekst
+  const buildContext = () => {
+    const s = state || {}
+    const { profile, progressByCourse = {}, xp = 0, streak = 0, saved = [], courseId } = s
+    return {
+      ism: profile?.name || user?.first_name || 'foydalanuvchi',
+      daraja: Math.floor(xp / 100) + 1,
+      jami_xp: xp,
+      streak,
+      joriy_kurs: getCourse(courseId)?.title,
+      maqsadlar: profile?.goals || [],
+      super_kuch: profile?.superpower || null,
+      tanishuv_ishonchi: profile?.meet || null,
+      kurslar_progressi: COURSES.map((c) => ({
+        kurs: c.title,
+        bajarilgan: `${progressByCourse[c.id] || 0}/${c.lessons.length}`,
+      })),
+      saqlangan_goyalar_soni: saved.length,
+    }
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
@@ -37,7 +59,7 @@ export default function AiChat({ telegram, onClose }) {
     setInput('')
     setTyping(true)
     try {
-      const reply = await getCoachReply(next)
+      const reply = await getCoachReply(next, buildContext())
       setMessages((c) => [...c, { role: 'ai', text: reply }])
     } catch {
       setMessages((c) => [...c, { role: 'ai', text: 'Kechirasiz, javob bera olmadim. Qayta urinib ko‘ring.' }])
@@ -71,6 +93,12 @@ export default function AiChat({ telegram, onClose }) {
               </button>
             ))}
           </div>
+          <button
+            className="assist__me"
+            onClick={() => sendText('Mening hisobimni va progressimni tekshirib, shaxsiy tahlil va tavsiya ber.')}
+          >
+            📊 Mening progressimni tahlil qil
+          </button>
         </div>
       ) : (
         <div className="chat" ref={scrollRef}>

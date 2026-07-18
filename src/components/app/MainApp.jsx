@@ -58,7 +58,7 @@ export default function MainApp({ telegram, state, onCompleteLesson, onSetCourse
       </div>
     )
   }
-  if (aiChatOpen) return <div className="main"><AiChat telegram={telegram} onClose={() => setAiChatOpen(false)} /></div>
+  if (aiChatOpen) return <div className="main"><AiChat telegram={telegram} state={state} onClose={() => setAiChatOpen(false)} /></div>
   if (subScreen === 'settings') return <div className="main"><Settings telegram={telegram} onReset={onReset} onBack={() => setSubScreen(null)} /></div>
   if (subScreen === 'leaderboard') return <div className="main"><Leaderboard telegram={telegram} xp={xp} onBack={() => setSubScreen(null)} /></div>
   if (detailId) {
